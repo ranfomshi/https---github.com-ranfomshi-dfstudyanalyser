@@ -662,7 +662,7 @@ function displayReportSummary(studyArray) {
             }
         },
         series: [{
-            name: 'AOI label frequency',
+            name: 'Frequency',
             data: data
         }],
         chart: {
