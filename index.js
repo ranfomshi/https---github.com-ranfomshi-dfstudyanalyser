@@ -123,7 +123,6 @@ function aoiAnalysis(studyArray) {
 
 function displayBenchmarkAverages(aoiData) {
 
-
     // format data for chart
     const chartData = {
         series: [
@@ -135,7 +134,13 @@ function displayBenchmarkAverages(aoiData) {
         ],
         labels: []
     };
-    var data = benchmarkAverages(aoiData)
+    var data = benchmarkAverages(aoiData);
+
+    // Sort data by count in descending order
+    data = Object.entries(data)
+        .sort(([, a], [, b]) => b.count - a.count)
+        .reduce((r, [k, v]) => ({ ...r, [k]: v }), {});
+
 
     for (const label in data) {
         chartData.labels.push(label);
@@ -151,6 +156,7 @@ function displayBenchmarkAverages(aoiData) {
     var bmContainer = document.createElement('div')
     bmContainer.id = 'benchmarksChartContainer'
     bmContainer.className = 'chartCard'
+    bmContainer.style.maxHeight = 'fit-content'
     document.getElementById('output').appendChild(bmContainer)
 
     bm = document.createElement('div')
@@ -158,7 +164,6 @@ function displayBenchmarkAverages(aoiData) {
     document.getElementById('benchmarksChartContainer').appendChild(bm)
 
     //create check box for stacking
-
 
     var stack = true
     var cb = document.createElement('input')
@@ -212,26 +217,18 @@ function displayBenchmarkAverages(aoiData) {
             categories: chartData.labels
         },
         yaxis: [
-
             {
                 show: true,
                 title: {
                     text: 'Pop, Las, Soa, Pow'
                 },
-
             },
-            // {
-            //     show: false,
-            //     opposite: false,
-            //     title: {
-            //         text: 'Count'
-            //     }
-            // }
         ]
     });
     chart.render();
 
 }
+
 
 function benchmarkAverages(data) {
     const avgScores = {};
@@ -522,13 +519,15 @@ function createAoiLableFrequencyChart(aoiData) {
         return counts;
     }, {});
 
-    // Step 3: Convert the object to an array of objects
-    let data = Object.keys(labelCounts).map((label) => {
-        return {
-            label: label,
-            count: labelCounts[label],
-        };
-    });
+    // Step 3: Convert the object to an array of objects, filtering out "unlabeled" items
+    let data = Object.keys(labelCounts)
+        .filter((label) => label !== "unlabeled")
+        .map((label) => {
+            return {
+                label: label,
+                count: labelCounts[label],
+            };
+        });
 
     // Step 4: Sort the array of objects by count, in descending order
     data.sort((a, b) => b.count - a.count);
