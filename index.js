@@ -466,7 +466,7 @@ function createNumberofActiveVersionsChart(data) {
             }
         },
         series: [{
-            name: 'Active versions frequency frequency',
+            name: 'Active versions frequency',
             data: frequency
         }],
         chart: {
