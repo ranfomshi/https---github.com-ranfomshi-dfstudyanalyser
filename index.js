@@ -92,25 +92,26 @@ function aoiAnalysis(studyArray) {
     studyArray.forEach((study, studyIndex) => {
         study.stages.forEach((stage, stageIndex) => {
             try {
-                stage.aoi[0].shapes.forEach((shape, shapeIndex) => {
-                    shape.studyIndex = studyIndex;
-                    shape.stageIndex = stageIndex;
-                    shape.shapeIndex = shapeIndex;
+                if (stage.aoi[0].shapes.length > 0) {
+                    stage.aoi[0].shapes.forEach((shape, shapeIndex) => {
+                        shape.studyIndex = studyIndex;
+                        shape.stageIndex = stageIndex;
+                        shape.shapeIndex = shapeIndex;
 
-                    aoiData.push({
-                        study: studyIndex,
-                        stage: stageIndex,
-                        shape: shapeIndex,
-                        label: shape.label,
-                        pop: shape.pop,
-                        las: shape.las,
-                        soa: shape.soa,
-                        pow: shape.pow
+                        aoiData.push({
+                            study: studyIndex,
+                            stage: stageIndex,
+                            shape: shapeIndex,
+                            label: shape.label,
+                            pop: shape.pop,
+                            las: shape.las,
+                            soa: shape.soa,
+                            pow: shape.pow
+                        });
                     });
-                });
-
+                }
             } catch {
-                console.log("no shape data for this stage or in the wrong format");
+                console.log("no shape data for this stage or in the wrong format", stage);
             }
         });
     });
@@ -118,6 +119,7 @@ function aoiAnalysis(studyArray) {
     displayAvgAoiPerStage(aoiData);
     displayBenchmarkAverages(aoiData);
 }
+
 
 function displayBenchmarkAverages(aoiData) {
 
