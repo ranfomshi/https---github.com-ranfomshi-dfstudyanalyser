@@ -195,6 +195,10 @@ function displayBenchmarkAverages(aoiData) {
                 show: false
             },
             bar: {
+
+                borderWidth: 0,
+                columnWidth: '5%',
+
                 dataLabels: {
                     position: 'top',
                 }
@@ -555,10 +559,12 @@ function createAoiLableFrequencyChart(aoiData) {
         },
         series: [{
             name: 'AOI label frequency',
-            data: data.map((item) => item.count)
+            data: data.map((item) => item.count),
+            type: 'bar'
         }],
         chart: {
-            type: 'bar'
+            type: 'line',
+            zoom: { enabled: true }
         },
         plotOptions: {
             bar: {
