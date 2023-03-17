@@ -130,7 +130,7 @@ function displayBenchmarkAverages(aoiData) {
             { name: 'Las', data: [], type: 'column' },
             { name: 'Soa', data: [], type: 'column' },
             { name: 'Pow', data: [], type: 'column' },
-            { name: 'Count', data: [], type: 'column' }
+            { name: 'Count', data: [], type: 'line' }
         ],
         labels: []
     };
@@ -197,7 +197,7 @@ function displayBenchmarkAverages(aoiData) {
             bar: {
 
                 borderWidth: 0,
-                columnWidth: '5%',
+                columnWidth: '100%',
 
                 dataLabels: {
                     position: 'top',
@@ -224,7 +224,7 @@ function displayBenchmarkAverages(aoiData) {
             {
                 show: true,
                 title: {
-                    text: 'Pop, Las, Soa, Pow'
+                    text: 'Metrics'
                 },
             },
         ]
