@@ -211,14 +211,14 @@ function displayBenchmarkAverages(aoiData) {
 
 function transformAoiData(aoiData) {
     console.log("aoi data", aoiData)
-    aoiData.forEach(item => {
-        if (item.label) {
-            if (item["label"].toLowerCase() == 'imagery') {
-                console.log(item)
-            }
-        }
+    // aoiData.forEach(item => {
+    //     if (item.label) {
+    //         if (item["label"].toLowerCase() == 'imagery') {
+    //             console.log(item)
+    //         }
+    //     }
 
-    })
+    // })
     const scores = ["pop", "las", "soa", "pow"];
     const labelCounts = {};
     const labelScores = {};
