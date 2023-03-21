@@ -132,6 +132,8 @@ function displayBenchmarkAverages(aoiData) {
     bmContainer.id = 'benchmarksChartContainer'
     bmContainer.className = 'chartCard'
     bmContainer.style.maxHeight = 'fit-content'
+    bmContainer.style.padding = 0
+    bmContainer.style.width = "100%"
     document.getElementById('output').appendChild(bmContainer)
 
     bm = document.createElement('div')
@@ -193,7 +195,8 @@ function displayBenchmarkAverages(aoiData) {
         },
         series: chartData.series,
         xaxis: {
-            categories: chartData.labels
+            categories: chartData.labels,
+            max: 10
         },
         yaxis: [
             {
