@@ -124,32 +124,7 @@ function aoiAnalysis(studyArray) {
 function displayBenchmarkAverages(aoiData) {
 
     // format data for chart
-    const chartData = {
-        series: [
-            { name: 'Pop', data: [], type: 'column' },
-            { name: 'Las', data: [], type: 'column' },
-            { name: 'Soa', data: [], type: 'column' },
-            { name: 'Pow', data: [], type: 'column' },
-            { name: 'Count', data: [], type: 'line' }
-        ],
-        labels: []
-    };
-    var data = benchmarkAverages(aoiData);
-
-    // Sort data by count in descending order
-    data = Object.entries(data)
-        .sort(([, a], [, b]) => b.count - a.count)
-        .reduce((r, [k, v]) => ({ ...r, [k]: v }), {});
-
-
-    for (const label in data) {
-        chartData.labels.push(label);
-        chartData.series[0].data.push(data[label].pop);
-        chartData.series[1].data.push(data[label].las);
-        chartData.series[2].data.push(data[label].soa);
-        chartData.series[3].data.push(data[label].pow);
-        chartData.series[4].data.push(data[label].count);
-    }
+    const chartData = transformAoiData(aoiData)
     console.log("chart data", chartData)
 
     // create chart
@@ -234,49 +209,93 @@ function displayBenchmarkAverages(aoiData) {
 }
 
 
-function benchmarkAverages(data) {
-    const avgScores = {};
-
-    data.forEach((item) => {
-        const label = item.label ? item.label.toLowerCase() : "unlabeled";
-
-        if (label in avgScores) {
-            avgScores[label].pop += item.pop;
-            avgScores[label].las += item.las;
-            avgScores[label].soa += item.soa;
-            avgScores[label].pow += item.pow;
-            avgScores[label].count += 1;
-        } else {
-            avgScores[label] = {
-                pop: item.pop,
-                las: item.las,
-                soa: item.soa,
-                pow: item.pow,
-                count: 1,
-            };
+function transformAoiData(aoiData) {
+    console.log("aoi data", aoiData)
+    aoiData.forEach(item => {
+        if (item.label) {
+            if (item["label"].toLowerCase() == 'imagery') {
+                console.log(item)
+            }
         }
-    });
 
-    for (const label in avgScores) {
-        if (
-            !(
-                isNaN(avgScores[label].pop) ||
-                isNaN(avgScores[label].las) ||
-                isNaN(avgScores[label].soa) ||
-                isNaN(avgScores[label].pow)
-            )
-        ) {
-            avgScores[label].pop = (avgScores[label].pop / avgScores[label].count).toFixed(3);
-            avgScores[label].las = (avgScores[label].las / avgScores[label].count).toFixed(3);
-            avgScores[label].soa = (avgScores[label].soa / avgScores[label].count).toFixed(3);
-            avgScores[label].pow = (avgScores[label].pow / avgScores[label].count).toFixed(3);
-        } else {
-            delete avgScores[label];
+    })
+    const scores = ["pop", "las", "soa", "pow"];
+    const labelCounts = {};
+    const labelScores = {};
+
+    // count the labels and sum the scores
+    for (const data of aoiData) {
+        const label = (data.label || 'No Label').toLowerCase();
+        const scoreKeys = Object.keys(data).filter((key) => scores.includes(key));
+        if (!labelCounts[label]) {
+            labelCounts[label] = 0;
+            labelScores[label] = {};
+            for (const score of scores) {
+                labelScores[label][score] = 0;
+            }
+        }
+        labelCounts[label]++;
+        for (const key of scoreKeys) {
+            labelScores[label][key] += parseFloat(data[key]);
         }
     }
 
-    return avgScores;
+    // calculate the averages
+    const labelAverages = {};
+    for (const label of Object.keys(labelCounts)) {
+        labelAverages[label] = {};
+        for (const score of scores) {
+            const values = [];
+            for (const data of aoiData) {
+                const dataLabel = (data.label || 'No Label').toLowerCase();
+                if (dataLabel === label) {
+                    const value = parseFloat(data[score]);
+                    if (!isNaN(value)) {
+                        values.push(value);
+                    }
+                }
+            }
+            if (values.length > 0) {
+                const sum = values.reduce((a, b) => a + b, 0);
+                const average = sum / values.length;
+                labelAverages[label][score] = parseFloat(average.toFixed(3));
+            } else {
+                labelAverages[label][score] = 0;
+            }
+        }
+    }
+
+    // create the output format
+    const distinctLabels = Object.keys(labelCounts).sort(
+        (a, b) => labelCounts[b] - labelCounts[a]
+    );
+    const series = [];
+    for (const score of scores) {
+        const data = [];
+        for (const label of distinctLabels) {
+            data.push(labelAverages[label][score]);
+        }
+        series.push({
+            name: score.toUpperCase(),
+            data: data,
+            type: "column"
+        });
+    }
+    const countData = [];
+    for (const label of distinctLabels) {
+        countData.push(labelCounts[label]);
+    }
+    series.push({
+        name: "Count",
+        data: countData,
+        type: "line"
+    });
+    return {
+        series: series,
+        labels: distinctLabels
+    };
 }
+
 
 function wrapUrlsInDoubleQuotes(str) {
     if (typeof str !== "string") {
