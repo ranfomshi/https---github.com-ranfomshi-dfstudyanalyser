@@ -815,3 +815,13 @@ function reset() {
     document.getElementById("jsonInput").style.display = "block";
     document.getElementById("backBtn").style.display = "none";
 }
+
+
+window.addEventListener('scroll', function () {
+    var button = document.getElementById('backBtn');
+    if (window.scrollY > button.offsetTop) {
+        button.classList.add('top');
+    } else {
+        button.classList.remove('top');
+    }
+});

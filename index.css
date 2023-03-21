@@ -4,13 +4,13 @@
 
 html {
     color: black;
+    padding: 0;
 }
 
 html,
 body {
     margin: 0 !important;
     box-sizing: border-box !important;
-    padding: 10px !important;
     font-family: 'Inter', sans-serif;
 }
 
@@ -93,6 +93,13 @@ canvas {
 
 }
 
+.top {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
 .btn {
     width: 100px;
     height: auto;
@@ -111,6 +118,8 @@ canvas {
     box-sizing: border-box;
     border: transparent 1px solid;
     padding: 5px;
+    z-index:
+        9;
 }
 
 .btn:hover {
