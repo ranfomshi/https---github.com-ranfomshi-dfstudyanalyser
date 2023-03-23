@@ -17,16 +17,35 @@ function start(array) {
 
     //tidy the json input
     var studyArrayString = wrapUrlsInDoubleQuotes("[" + array + "]");
+    //check for empty studies and remove - this handles up to three in a row either at the start, somewhere in the middle, or at the end
+    var counter = 0
+    studyArrayString = studyArrayString.replace(/(?:\r\n|\r|\n)/g, '')
+    studyArrayString = studyArrayString.replace("}[]{", () => { counter++; return ("}{") })
+    studyArrayString = studyArrayString.replace("}[][]{", () => { counter++; return ("}{") })
+    studyArrayString = studyArrayString.replace("}[][][]{", () => { counter++; return ("}{") })
+    studyArrayString = studyArrayString.replace("[]{", () => { counter++; return ("{") })
+    studyArrayString = studyArrayString.replace("[][]{", () => { counter++; return ("{") })
+    studyArrayString = studyArrayString.replace("[][][]{", () => { counter++; return ("{") })
+    studyArrayString = studyArrayString.replace("}[]", () => { counter++; return ("}") })
+    studyArrayString = studyArrayString.replace("}[][]", () => { counter++; return ("}") })
+    studyArrayString = studyArrayString.replace("}[][]", () => { counter++; return ("}") })
+    console.log("replacements (studies without data) = " + counter)
     var studyArray = JSON.parse(addCommasToJsonString(studyArrayString));
     //display in console for user validation
     console.log("json vesrion", studyArray);
-
+    //if no studies, alert and reset
+    if (studyArray.length == 0) {
+        alert('no populated studies found');
+        window.location.reload()
+    }
     //iterate on each study to produce any per study analysis and to start aggregation data
     //into another array called masterCollation
-    perStudyAnalysis(studyArray);
+    try { perStudyAnalysis(studyArray) }
+    catch { alert('Data in wrong format'); return }
 
     //use masterCollation to produce some charts
-    overallAnalysis(studyArray);
+    try { overallAnalysis(studyArray); }
+    catch { alert('Data in wrong format'); }
 }
 
 var masterCollation = {
