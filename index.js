@@ -2,6 +2,7 @@ function start(array) {
     document.getElementById("startBtn").style.display = "none";
     document.getElementById("jsonInput").style.display = "none";
     document.getElementById("backBtn").style.display = "block";
+    document.getElementById("instruction").style.display = "none";
     //clear previous output charts etc
     document.getElementById("output").innerHTML = "";
     document.getElementById("summaryData").innerText = "";
@@ -348,10 +349,13 @@ function createNumberofReportsChart(data) {
         },
         series: [{
             name: 'Reports frequency',
-            data: frequency
+            data: frequency,
+            type: 'bar'
         }],
         chart: {
-            type: 'bar'
+            width: "100%",
+            type: 'line',
+            zoom: { enabled: true }
         },
         plotOptions: {
             bar: {
@@ -420,10 +424,13 @@ function createNumberofVisibleVersionsChart(data) {
         },
         series: [{
             name: 'Visible versions frequency frequency',
-            data: frequency
+            data: frequency,
+            type: 'bar'
         }],
         chart: {
-            type: 'bar'
+            width: "100%",
+            type: 'line',
+            zoom: { enabled: true }
         },
         plotOptions: {
             bar: {
@@ -471,6 +478,11 @@ function createNumberofActiveVersionsChart(data) {
     ); // get the frequency of each unique number
 
     var options = {
+        chart: {
+            width: "100%",
+            type: 'line',
+            zoom: { enabled: true }
+        },
         title: {
             text: theCanvas.id,
             align: 'left',
@@ -492,11 +504,9 @@ function createNumberofActiveVersionsChart(data) {
         },
         series: [{
             name: 'Active versions frequency',
-            data: frequency
-        }],
-        chart: {
+            data: frequency,
             type: 'bar'
-        },
+        }],
         plotOptions: {
             bar: {
                 horizontal: false,
@@ -585,6 +595,7 @@ function createAoiLableFrequencyChart(aoiData) {
             type: 'bar'
         }],
         chart: {
+            width: "100%",
             type: 'line',
             zoom: { enabled: true }
         },
@@ -692,10 +703,13 @@ function displayReportSummary(studyArray) {
         },
         series: [{
             name: 'Frequency',
-            data: data
+            data: data,
+            type: 'bar'
         }],
         chart: {
-            type: 'bar'
+            width: "100%",
+            type: 'line',
+            zoom: { enabled: true }
         },
         plotOptions: {
             bar: {
@@ -814,6 +828,7 @@ function reset() {
     document.getElementById("startBtn").style.display = "block";
     document.getElementById("jsonInput").style.display = "block";
     document.getElementById("backBtn").style.display = "none";
+    document.getElementById("instruction").style.display = "block";
 }
 
 
