@@ -12,6 +12,7 @@ body {
     margin: 0 !important;
     box-sizing: border-box !important;
     font-family: 'Inter', sans-serif;
+    background-color: rgb(246, 248, 249);
 }
 
 
@@ -69,12 +70,11 @@ canvas {
 }
 
 .chartCard {
-    width: 350px;
+    min-width: 350px;
     max-height: 300px;
     min-height: 100px;
     align-items: center;
     text-align: center;
-    position: relative;
     background-color: rgb(255, 255, 255);
     font-weight: bold;
     font-size: large;
