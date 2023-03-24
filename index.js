@@ -524,7 +524,18 @@ function createNumberofActiveVersionsChart(data) {
         series: [{
             name: 'Active versions frequency',
             data: frequency,
-            type: 'bar'
+            type: 'bar',
+            fill: {
+                type: "gradient",
+                gradient: {
+                    shadeIntensity: 0.5,
+                    opacityFrom: 0.7,
+                    opacityTo: 0.9,
+                    gradientToColors: ['#b20000', '#ff0000', '#ff5f5f'],
+                    stops: [0, 50, 100]
+                }
+            }
+
         }],
         plotOptions: {
             bar: {
@@ -614,6 +625,7 @@ function createAoiLableFrequencyChart(aoiData) {
             type: 'bar'
         }],
         chart: {
+            height: 280,
             width: "100%",
             type: 'line',
             zoom: { enabled: true }

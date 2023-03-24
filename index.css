@@ -15,6 +15,11 @@ body {
     background-color: rgb(246, 248, 249);
 }
 
+.content {
+    width: 80%;
+    margin: auto;
+}
+
 
 canvas {
     max-height: 200px !important;
