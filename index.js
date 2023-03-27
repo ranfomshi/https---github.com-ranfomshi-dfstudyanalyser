@@ -267,15 +267,12 @@ function transformAoiData(aoiData) {
     const labelCounts = {};
     const labelScores = {};
 
-
-    var poly = 0
-    var rect = 0
-
     // count the labels and sum the scores
     for (const data of aoiData) {
-        const label = (data.label || 'No Label').toLowerCase();
-        if (data.type == "rectangle") { rect++ }
-        if (data.type == "polygon") { poly++ }
+        if (!data.label) {
+            continue; // skip items without a label
+        }
+        const label = data.label.toLowerCase();
         const scoreKeys = Object.keys(data).filter((key) => scores.includes(key));
         if (!labelCounts[label]) {
             labelCounts[label] = 0;
@@ -290,8 +287,6 @@ function transformAoiData(aoiData) {
         }
     }
 
-    console.log("poly: " + poly, "rect: " + rect)
-
     // calculate the averages
     const labelAverages = {};
     for (const label of Object.keys(labelCounts)) {
@@ -299,7 +294,10 @@ function transformAoiData(aoiData) {
         for (const score of scores) {
             const values = [];
             for (const data of aoiData) {
-                const dataLabel = (data.label || 'No Label').toLowerCase();
+                if (!data.label) {
+                    continue; // skip items without a label
+                }
+                const dataLabel = data.label.toLowerCase();
                 if (dataLabel === label) {
                     const value = parseFloat(data[score]);
                     if (!isNaN(value)) {
@@ -340,7 +338,7 @@ function transformAoiData(aoiData) {
     series.push({
         name: "Count",
         data: countData,
-        type: "line"
+        type: "line",
     });
     return {
         series: series,
@@ -899,7 +897,6 @@ window.addEventListener('scroll', function () {
         button.classList.remove('top');
     }
 });
-
 
 function displayActiveReportTypes(studyArray) {
     theCanvas = document.createElement("div");
