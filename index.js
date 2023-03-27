@@ -103,7 +103,7 @@ function overallAnalysis(studyArray) {
 
     displayReportSummary(studyArray);
     appendSummaryData(studyArray);
-
+    displayActiveReportTypes(studyArray);
     aoiAnalysis(studyArray);
 
 }
@@ -126,18 +126,39 @@ function aoiAnalysis(studyArray) {
                             pop: shape.pop,
                             las: shape.las,
                             soa: shape.soa,
-                            pow: shape.pow
+                            pow: shape.pow,
+                            type: shape.type
                         });
                     });
                 }
             } catch {
-                console.log("no shape data for this stage or in the wrong format", stage);
+                // console.log("no shape data for this stage or in the wrong format", stage);
             }
         });
     });
     createAoiLableFrequencyChart(aoiData);
     displayAvgAoiPerStage(aoiData);
     displayBenchmarkAverages(aoiData);
+    displayShapeBreakdown(aoiData)
+}
+
+function displayShapeBreakdown(aoiData) {
+    var poly = 0
+    var rect = 0
+
+    // count the labels and sum the scores
+    for (const data of aoiData) {
+        if (data.type == "rectangle") { rect++ }
+        if (data.type == "polygon") { poly++ }
+    }
+
+    var shapeBreakdown = document.createElement("div");
+    shapeBreakdown.innerHTML =
+        "<p class='cardText'>Polygon v Rectangle: </p><b class='cardMetric'> " +
+        poly.toString() + " v " + rect.toString()
+    "</b>";
+    shapeBreakdown.className = "card";
+    document.getElementById("summaryData").appendChild(shapeBreakdown);
 }
 
 
@@ -145,7 +166,7 @@ function displayBenchmarkAverages(aoiData) {
 
     // format data for chart
     const chartData = transformAoiData(aoiData)
-    console.log("chart data", chartData)
+    //console.log("chart data", chartData)
 
     // create chart
     var bmContainer = document.createElement('div')
@@ -246,9 +267,15 @@ function transformAoiData(aoiData) {
     const labelCounts = {};
     const labelScores = {};
 
+
+    var poly = 0
+    var rect = 0
+
     // count the labels and sum the scores
     for (const data of aoiData) {
         const label = (data.label || 'No Label').toLowerCase();
+        if (data.type == "rectangle") { rect++ }
+        if (data.type == "polygon") { poly++ }
         const scoreKeys = Object.keys(data).filter((key) => scores.includes(key));
         if (!labelCounts[label]) {
             labelCounts[label] = 0;
@@ -262,6 +289,8 @@ function transformAoiData(aoiData) {
             labelScores[label][key] += parseFloat(data[key]);
         }
     }
+
+    console.log("poly: " + poly, "rect: " + rect)
 
     // calculate the averages
     const labelAverages = {};
@@ -862,7 +891,6 @@ function reset() {
     document.getElementById("instruction").style.display = "block";
 }
 
-
 window.addEventListener('scroll', function () {
     var button = document.getElementById('backBtn');
     if (window.scrollY > button.offsetTop) {
@@ -871,3 +899,97 @@ window.addEventListener('scroll', function () {
         button.classList.remove('top');
     }
 });
+
+
+function displayActiveReportTypes(studyArray) {
+    theCanvas = document.createElement("div");
+    theCanvas.className = "chartCard";
+    theCanvas.id = "activeReportsFrequencyChart";
+    document.getElementById("output").appendChild(theCanvas);
+
+    let allActiveReports = []
+    studyArray.forEach(study => {
+        let activeReport = study.workspace.activeReport
+
+
+        study.reports.forEach(report => {
+            if (report.id == activeReport) {
+                allActiveReports.push(report.type)
+            }
+        });
+    })
+
+    const summary = allActiveReports.reduce((acc, curr) => {
+        if (!acc[curr]) {
+            acc[curr] = 1;
+        } else {
+            acc[curr]++;
+        }
+        return acc;
+    }, {});
+
+    const uniqueCategories = [...new Set(allActiveReports)];
+
+    var options = {
+        title: {
+            text: theCanvas.id,
+            align: 'left',
+            margin: 10,
+            offsetX: 0,
+            offsetY: 0,
+            floating: false,
+            style: {
+                fontSize: '13px',
+                fontWeight: '100',
+                fontFamily: 'inter',
+                color: '#a9a9a9'
+            },
+        },
+        events: {
+            mounted: (chart) => {
+                chart.windowResizeHandler();
+            }
+        },
+        series: [{
+            name: 'Active Reports frequency',
+            data: Object.values(summary),
+            type: 'bar'
+        }],
+        chart: {
+            width: "100%",
+            type: 'line',
+            zoom: { enabled: true }
+        },
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                columnWidth: '55%',
+                endingShape: 'rounded'
+            },
+        },
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            show: true,
+            width: 2,
+        },
+        xaxis: {
+            categories: uniqueCategories
+        },
+        yaxis: {
+
+        },
+        fill: {
+            opacity: 1
+        },
+        tooltip: {
+            y: {
+            }
+        }
+    };
+
+    var chart = new ApexCharts(document.getElementById("activeReportsFrequencyChart"), options);
+    chart.render();
+
+}
