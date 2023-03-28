@@ -122,13 +122,14 @@ function aoiAnalysis(studyArray) {
                             study: studyIndex,
                             stage: stageIndex,
                             shape: shapeIndex,
-                            label: shape.label,
+                            label: shape.label.trim(),
                             pop: shape.pop,
                             las: shape.las,
                             soa: shape.soa,
                             pow: shape.pow,
                             type: shape.type
                         });
+
                     });
                 }
             } catch {
@@ -171,8 +172,9 @@ function displayBenchmarkAverages(aoiData) {
     // create chart
     var bmContainer = document.createElement('div')
     bmContainer.id = 'benchmarksChartContainer'
-    bmContainer.className = 'chartCard'
-    bmContainer.style.maxHeight = 'fit-content'
+    bmContainer.className = 'chartCard h550'
+
+    bmContainer.style.minHeight = '400px !important'
     bmContainer.style.padding = 0
     bmContainer.style.width = "100%"
     document.getElementById('output').appendChild(bmContainer)
@@ -194,6 +196,7 @@ function displayBenchmarkAverages(aoiData) {
         console.log(stack)
         chart.updateOptions({
             chart: {
+                height: 350,
                 stacked: stack,
                 stackType: 'normal',
                 type: 'bar',
@@ -211,25 +214,18 @@ function displayBenchmarkAverages(aoiData) {
         plotOptions: {
             yaxis: {
                 show: false
-            },
-            bar: {
-
-                borderWidth: 0,
-                columnWidth: '100%',
-
-                dataLabels: {
-                    position: 'top',
-                }
             }
         },
-        dataLabels: {
-
-            style: {
-                colors: ['#000', '#556677', '#32a852', '#3a87c2', '#c23ab9'],
-            },
-
+        events: {
+            mounted: (chart) => {
+                chart.windowResizeHandler();
+            }
+        },
+        stroke: {
+            colors: ['transparent']
         },
         chart: {
+            height: 500,
             stacked: stack,
             stackType: 'normal',
             type: 'line',
@@ -248,6 +244,7 @@ function displayBenchmarkAverages(aoiData) {
             },
         ]
     });
+    console.log(chart)
     chart.render();
 
 }
@@ -328,7 +325,12 @@ function transformAoiData(aoiData) {
         series.push({
             name: score.toUpperCase(),
             data: data,
-            type: "column"
+            type: "column",
+            strokeColor: '#C23829',
+            fillColor: '#EB8C87',
+            borderWidth: 2,
+            stroke: 2,
+            strokeWidth: 2
         });
     }
     const countData = [];
@@ -399,6 +401,7 @@ function createNumberofReportsChart(data) {
             type: 'bar'
         }],
         chart: {
+            height: 280,
             width: "100%",
             type: 'line',
             zoom: { enabled: true }
@@ -414,7 +417,7 @@ function createNumberofReportsChart(data) {
             enabled: false
         },
         stroke: {
-            show: true,
+            show: false,
             width: 2,
         },
         xaxis: {
@@ -474,6 +477,7 @@ function createNumberofVisibleVersionsChart(data) {
             type: 'bar'
         }],
         chart: {
+            height: 280,
             width: "100%",
             type: 'line',
             zoom: { enabled: true }
@@ -489,7 +493,7 @@ function createNumberofVisibleVersionsChart(data) {
             enabled: false
         },
         stroke: {
-            show: true,
+            show: false,
             width: 2,
         },
         xaxis: {
@@ -525,6 +529,7 @@ function createNumberofActiveVersionsChart(data) {
 
     var options = {
         chart: {
+            height: 280,
             width: "100%",
             type: 'line',
             zoom: { enabled: true }
@@ -575,7 +580,7 @@ function createNumberofActiveVersionsChart(data) {
             enabled: false
         },
         stroke: {
-            show: true,
+            show: false,
             width: 2,
         },
         xaxis: {
@@ -603,27 +608,29 @@ function createAoiLableFrequencyChart(aoiData) {
     theCanvas.id = "AoiLableFrequencyChart";
     document.getElementById("output").appendChild(theCanvas);
 
-    // Step 1: Create an array of labels, converted to lowercase
-    let labels = aoiData.map((item) => item.label ? item.label.toLowerCase() : "unlabeled");
+    // Initialize an empty object to store the label counts
+    let labelCounts = {};
 
-    // Step 2: Create an object that stores the count of each label
-    let labelCounts = labels.reduce((counts, label) => {
-        counts[label] = (counts[label] || 0) + 1;
-        return counts;
-    }, {});
+    // Loop through the aoiData array and count the occurrences of each unique label
+    aoiData.forEach(obj => {
+        let label = obj.label.toLowerCase();
+        if (labelCounts[label]) {
+            labelCounts[label]++;
+        } else {
+            labelCounts[label] = 1;
+        }
+    });
 
-    // Step 3: Convert the object to an array of objects, filtering out "unlabeled" items
-    let data = Object.keys(labelCounts)
-        .filter((label) => label !== "unlabeled")
-        .map((label) => {
-            return {
-                label: label,
-                count: labelCounts[label],
-            };
-        });
+    // Sort the keys of the labelCounts object based on their corresponding values
+    let sortedLabels = Object.keys(labelCounts).sort((a, b) => {
+        return labelCounts[b] - labelCounts[a];
+    });
 
-    // Step 4: Sort the array of objects by count, in descending order
-    data.sort((a, b) => b.count - a.count);
+    // Create a new object with the sorted labels and their counts
+    let labelCountsObject = {};
+    sortedLabels.forEach(label => {
+        labelCountsObject[label] = labelCounts[label];
+    });
 
     // Step 5: Use the data to create a chart using lib
     var options = {
@@ -648,7 +655,7 @@ function createAoiLableFrequencyChart(aoiData) {
         },
         series: [{
             name: 'AOI label frequency',
-            data: data.map((item) => item.count),
+            data: Object.values(labelCountsObject),
             type: 'bar'
         }],
         chart: {
@@ -660,7 +667,6 @@ function createAoiLableFrequencyChart(aoiData) {
         plotOptions: {
             bar: {
                 horizontal: false,
-                columnWidth: '55%',
                 endingShape: 'rounded'
             },
         },
@@ -668,11 +674,12 @@ function createAoiLableFrequencyChart(aoiData) {
             enabled: false
         },
         stroke: {
-            show: true,
+            show: false,
             width: 2,
         },
         xaxis: {
-            categories: data.map((item) => item.label),
+            categories: Object.keys(labelCountsObject),
+            max: 20
         },
         yaxis: {
 
@@ -765,6 +772,7 @@ function displayReportSummary(studyArray) {
             type: 'bar'
         }],
         chart: {
+            height: 280,
             width: "100%",
             type: 'line',
             zoom: { enabled: true }
@@ -780,7 +788,7 @@ function displayReportSummary(studyArray) {
             enabled: false
         },
         stroke: {
-            show: true,
+            show: false,
             width: 2,
         },
         xaxis: {
@@ -925,9 +933,16 @@ function displayActiveReportTypes(studyArray) {
         return acc;
     }, {});
 
-    const uniqueCategories = [...new Set(allActiveReports)];
+
 
     var options = {
+        events: {
+            mounted: (chart) => {
+                chart.windowResizeHandler();
+            }
+        },
+        series: Object.values(summary),
+        labels: Object.keys(summary),
         title: {
             text: theCanvas.id,
             align: 'left',
@@ -942,49 +957,32 @@ function displayActiveReportTypes(studyArray) {
                 color: '#a9a9a9'
             },
         },
-        events: {
-            mounted: (chart) => {
-                chart.windowResizeHandler();
-            }
-        },
-        series: [{
-            name: 'Active Reports frequency',
-            data: Object.values(summary),
-            type: 'bar'
-        }],
         chart: {
-            width: "100%",
-            type: 'line',
-            zoom: { enabled: true }
+            type: 'donut',
+            height: 280
         },
         plotOptions: {
-            bar: {
-                horizontal: false,
-                columnWidth: '55%',
-                endingShape: 'rounded'
-            },
-        },
-        dataLabels: {
-            enabled: false
-        },
-        stroke: {
-            show: true,
-            width: 2,
-        },
-        xaxis: {
-            categories: uniqueCategories
-        },
-        yaxis: {
-
-        },
-        fill: {
-            opacity: 1
-        },
-        tooltip: {
-            y: {
+            pie: {
+                donut: {
+                    size: '65%'
+                }
             }
-        }
+        },
+        responsive: [{
+            breakpoint: 480,
+            options: {
+                chart: {
+                    width: 200
+                },
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }]
     };
+
+
+
 
     var chart = new ApexCharts(document.getElementById("activeReportsFrequencyChart"), options);
     chart.render();

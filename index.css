@@ -51,7 +51,7 @@ canvas {
     font-weight: bold;
     font-size: large;
     border-radius: 5px;
-    margin: 5px;
+    margin: 10px;
     padding: 10px;
     color: black;
     box-shadow: 5px 5px 15px #6464644d;
@@ -77,18 +77,23 @@ canvas {
 .chartCard {
     min-width: 350px;
     max-height: 300px;
-    min-height: 100px;
+    min-height: 300px !important;
     align-items: center;
     text-align: center;
     background-color: rgb(255, 255, 255);
     font-weight: bold;
     font-size: large;
     border-radius: 5px;
-    margin: 5px;
+    margin: 10px;
     padding: 10px;
     color: black;
-    box-shadow: 5px 5px 15px #6464644d;
+    /* box-shadow: 5px 5px 15px #6464644d; */
     flex-grow: 1;
+}
+
+.h550 {
+    max-height: 550px !important;
+    min-height: 550px !important;
 }
 
 #summaryData {
@@ -108,7 +113,7 @@ canvas {
 .btn {
     width: 100px;
     height: auto;
-    margin: 5px;
+    margin: 10px;
     background-color: #f2318a;
     color: white;
     font-weight: bold;
