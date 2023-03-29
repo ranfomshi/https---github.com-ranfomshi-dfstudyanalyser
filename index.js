@@ -44,6 +44,7 @@ function start(array) {
     catch { alert('Data in wrong format'); return }
 
     //use masterCollation to produce some charts
+    //overallAnalysis(studyArray);
     try { overallAnalysis(studyArray); }
     catch { alert('Data in wrong format'); }
 }
@@ -55,6 +56,79 @@ var masterCollation = {
     activeReportType: [],
 };
 var aoiData = [];
+
+function averageNumberOfHotspots(studyArray) {
+    const numberOfHotspots = [];
+
+    // Iterate through each study
+    for (let i = 0; i < studyArray.length; i++) {
+        const study = studyArray[i];
+
+        // Iterate through each stage in the study
+        for (let j = 0; j < study.stages.length; j++) {
+            const stage = study.stages[j];
+
+            // Check if the stage has a hotspots object
+            if (stage.hotspots) {
+                // Check if the hotspots object has a center object with a hotspots array
+                if (stage.hotspots.center && stage.hotspots.center.hotspots) {
+                    numberOfHotspots.push(stage.hotspots.center.hotspots.length);
+                } else if (stage.hotspots.none && stage.hotspots.none.hotspots) {
+                    // Only add to the array if the center object is not available
+                    numberOfHotspots.push(stage.hotspots.none.hotspots.length);
+                }
+            }
+        }
+    }
+    const sum = numberOfHotspots.reduce((acc, val) => acc + val);
+    const average = sum / numberOfHotspots.length;
+
+    var avgHotspots = document.createElement("div");
+    avgHotspots.innerHTML =
+        "<p class='cardText'>Average number of hotspots per HS report: </p><b class='cardMetric'> " +
+        average.toFixed(2) +
+        "</b>"
+    avgHotspots.className = "card";
+    document.getElementById("summaryData").appendChild(avgHotspots);
+
+}
+
+function hotspotsAverageDigestibvility(studyArray) {
+    digestibilityArray = []
+
+    // Iterate through each study
+    for (let i = 0; i < studyArray.length; i++) {
+        const study = studyArray[i];
+
+        // Iterate through each stage in the study
+        for (let j = 0; j < study.stages.length; j++) {
+            const stage = study.stages[j];
+
+            // Check if the stage has a hotspots object
+            if (stage.hotspots) {
+                // Check if the hotspots object has a center object with a hotspots array
+                if (stage.hotspots.center && stage.hotspots.center.hotspots) {
+                    digestibilityArray.push(stage.hotspots.center.digestibilityScore)
+                } else if (stage.hotspots.none && stage.hotspots.none.hotspots) {
+                    // Only add to the array if the center object is not available
+                    digestibilityArray.push(stage.hotspots.none.digestibilityScore)
+                }
+            }
+        }
+    }
+
+    const sum = digestibilityArray.reduce((acc, val) => acc + val);
+    const average = sum / digestibilityArray.length;
+
+    var avgDigestibility = document.createElement("div");
+    avgDigestibility.innerHTML =
+        "<p class='cardText'>Average digestibility: </p><b class='cardMetric'> " +
+        average.toFixed(2) +
+        "</b>"
+    avgDigestibility.className = "card";
+    document.getElementById("summaryData").appendChild(avgDigestibility);
+
+}
 
 function perStudyAnalysis(array) {
     array.forEach((study, Index) => {
@@ -105,11 +179,14 @@ function overallAnalysis(studyArray) {
     appendSummaryData(studyArray);
     displayActiveReportTypes(studyArray);
     aoiAnalysis(studyArray);
-
+    averageNumberOfHotspots(studyArray);
+    hotspotsAverageDigestibvility(studyArray)
 }
 
 function aoiAnalysis(studyArray) {
+    //within each study
     studyArray.forEach((study, studyIndex) => {
+        //within each stage
         study.stages.forEach((stage, stageIndex) => {
             try {
                 if (stage.aoi[0].shapes.length > 0) {
@@ -137,13 +214,14 @@ function aoiAnalysis(studyArray) {
             }
         });
     });
-    createAoiLableFrequencyChart(aoiData);
-    displayAvgAoiPerStage(aoiData);
-    displayBenchmarkAverages(aoiData);
-    displayShapeBreakdown(aoiData)
+    createAoiLableFrequencyChart();
+    displayAvgAoiPerStage();
+    displayBenchmarkAverages();
+    displayShapeBreakdown()
+    metricVsMetric()
 }
 
-function displayShapeBreakdown(aoiData) {
+function displayShapeBreakdown() {
     var poly = 0
     var rect = 0
 
@@ -162,8 +240,7 @@ function displayShapeBreakdown(aoiData) {
     document.getElementById("summaryData").appendChild(shapeBreakdown);
 }
 
-
-function displayBenchmarkAverages(aoiData) {
+function displayBenchmarkAverages() {
 
     // format data for chart
     const chartData = transformAoiData(aoiData)
@@ -222,13 +299,14 @@ function displayBenchmarkAverages(aoiData) {
             }
         },
         stroke: {
-            colors: ['transparent']
+            colors: ['transparent', 'transparent', 'transparent', 'transparent', '#C817E6'],
+            curve: 'smooth'
         },
         chart: {
             height: 500,
             stacked: stack,
             stackType: 'normal',
-            type: 'line',
+            type: 'line'
         },
         series: chartData.series,
         xaxis: {
@@ -244,13 +322,11 @@ function displayBenchmarkAverages(aoiData) {
             },
         ]
     });
-    console.log(chart)
     chart.render();
 
 }
 
-
-function transformAoiData(aoiData) {
+function transformAoiData() {
     console.log("aoi data", aoiData)
     // aoiData.forEach(item => {
     //     if (item.label) {
@@ -325,12 +401,7 @@ function transformAoiData(aoiData) {
         series.push({
             name: score.toUpperCase(),
             data: data,
-            type: "column",
-            strokeColor: '#C23829',
-            fillColor: '#EB8C87',
-            borderWidth: 2,
-            stroke: 2,
-            strokeWidth: 2
+            type: "column"
         });
     }
     const countData = [];
@@ -340,7 +411,7 @@ function transformAoiData(aoiData) {
     series.push({
         name: "Count",
         data: countData,
-        type: "line",
+        type: "line"
     });
     return {
         series: series,
@@ -348,6 +419,78 @@ function transformAoiData(aoiData) {
     };
 }
 
+function metricVsMetric() {
+    theCanvas = document.createElement("div");
+    theCanvas.className = "chartCard";
+    theCanvas.id = "soaVsPow";
+    document.getElementById("output").appendChild(theCanvas);
+
+    // Filter out objects without defined soa and pow scores
+    const filteredData = aoiData
+        .filter(obj => obj.soa !== undefined && obj.soa !== null && obj.pow !== undefined && obj.pow !== null && obj.pop !== undefined && obj.pop !== null);
+
+    // Create an apexchart scatter plot
+    var options = {
+        title: {
+            text: 'Metric vs Metric',
+            align: 'left',
+            margin: 10,
+            offsetX: 0,
+            offsetY: 0,
+            floating: false,
+            style: {
+                fontSize: '13px',
+                fontWeight: '100',
+                fontFamily: 'inter',
+                color: '#a9a9a9'
+            },
+        },
+        chart: {
+            type: 'scatter',
+            height: 300,
+            zoom: {
+                enabled: true,
+                type: 'xy'
+            }
+        },
+        series: [{
+            name: "POW/SOA",
+            data: filteredData.map(obj => ({ x: obj.pow, y: obj.soa }))
+        }, {
+            name: "POW/POP",
+            data: filteredData.map(obj => ({ x: obj.pow, y: obj.pop }))
+        },
+        {
+            name: "POP/SOA",
+            data: filteredData.map(obj => ({ x: obj.pop, y: obj.soa }))
+        }
+        ],
+        xaxis: {
+            title: {
+                show: false
+            },
+            labels: {
+                formatter: function (value) {
+                    return value.toFixed(1).replace(/\.?0+$/, '');
+                }
+            },
+            tickAmount: 10
+        },
+        yaxis: {
+            labels: {
+                formatter: function (value) {
+                    return value.toFixed(1).replace(/\.?0+$/, '');
+                }
+            },
+            title: {
+                show: false
+            }
+        }
+
+    }
+    var chart = new ApexCharts(document.getElementById("soaVsPow"), options);
+    chart.render()
+}
 
 function wrapUrlsInDoubleQuotes(str) {
     if (typeof str !== "string") {
@@ -602,7 +745,7 @@ function createNumberofActiveVersionsChart(data) {
     chart.render();
 }
 
-function createAoiLableFrequencyChart(aoiData) {
+function createAoiLableFrequencyChart() {
     theCanvas = document.createElement("div");
     theCanvas.className = "chartCard";
     theCanvas.id = "AoiLableFrequencyChart";
@@ -697,7 +840,7 @@ function createAoiLableFrequencyChart(aoiData) {
     chart.render();
 }
 
-function displayAvgAoiPerStage(aoiData) {
+function displayAvgAoiPerStage() {
     // Step 1: Create an object that stores the count of aoi for each stage and study
     const countsByStageAndStudy = aoiData.reduce((counts, item) => {
         const key = `${item.study}:${item.stage}`;
