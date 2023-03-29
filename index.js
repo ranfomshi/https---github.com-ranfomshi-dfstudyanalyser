@@ -44,7 +44,7 @@ function start(array) {
     catch { alert('Data in wrong format'); return }
 
     //use masterCollation to produce some charts
-    //overallAnalysis(studyArray);
+    overallAnalysis(studyArray);
     try { overallAnalysis(studyArray); }
     catch { alert('Data in wrong format'); }
 }
@@ -176,6 +176,7 @@ function overallAnalysis(studyArray) {
     );
 
     displayReportSummary(studyArray);
+    displayMetricSummary(studyArray);
     appendSummaryData(studyArray);
     displayActiveReportTypes(studyArray);
     aoiAnalysis(studyArray);
@@ -950,6 +951,95 @@ function displayReportSummary(studyArray) {
     };
 
     var chart = new ApexCharts(document.getElementById("reportsSummary"), options);
+    chart.render();
+}
+function displayMetricSummary(studyArray) {
+    let metricTypes = {}; // initialize an empty object to store the totals for each type
+
+    for (let i = 0; i < studyArray.length; i++) {
+        let reports = studyArray[i].reports;
+        for (let j = 0; j < reports.length; j++) {
+            let settings = reports[j].settings;
+            if (settings && settings.metric) {
+                let metric = settings.metric;
+                if (metricTypes[metric]) {
+                    metricTypes[metric] += 1; // increment the count for this type if it already exists in the object
+                } else {
+                    metricTypes[metric] = 1; // add this type to the object and set the count to 1 if it doesn't already exist
+                }
+            }
+        }
+    }
+
+    theCanvas = document.createElement("div");
+    theCanvas.className = "chartCard";
+    theCanvas.id = "metricSummary";
+    document.getElementById("output").appendChild(theCanvas);
+
+    let labels = Object.keys(metricTypes);
+    let data = Object.values(metricTypes);
+
+    var options = {
+        title: {
+            text: theCanvas.id,
+            align: 'left',
+            margin: 10,
+            offsetX: 0,
+            offsetY: 0,
+            floating: false,
+            style: {
+                fontSize: '13px',
+                fontWeight: '100',
+                fontFamily: 'inter',
+                color: '#a9a9a9'
+            },
+        },
+        events: {
+            mounted: (chart) => {
+                chart.windowResizeHandler();
+            }
+        },
+        series: [{
+            name: 'Frequency',
+            data: data,
+            type: 'bar'
+        }],
+        chart: {
+            height: 280,
+            width: "100%",
+            type: 'line',
+            zoom: { enabled: true }
+        },
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                columnWidth: '55%',
+                endingShape: 'rounded'
+            },
+        },
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            show: false,
+            width: 2,
+        },
+        xaxis: {
+            categories: labels
+        },
+        yaxis: {
+
+        },
+        fill: {
+            opacity: 1
+        },
+        tooltip: {
+            y: {
+            }
+        }
+    };
+
+    var chart = new ApexCharts(document.getElementById("metricSummary"), options);
     chart.render();
 }
 
