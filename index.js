@@ -44,7 +44,7 @@ function start(array) {
     catch { alert('Data in wrong format'); return }
 
     //use masterCollation to produce some charts
-    overallAnalysis(studyArray);
+    //overallAnalysis(studyArray);
     try { overallAnalysis(studyArray); }
     catch { alert('Data in wrong format'); }
 }
