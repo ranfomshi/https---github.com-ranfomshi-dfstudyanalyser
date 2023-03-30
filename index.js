@@ -80,8 +80,16 @@ function averageNumberOfHotspots(studyArray) {
             }
         }
     }
-    const sum = numberOfHotspots.reduce((acc, val) => acc + val);
-    const average = sum / numberOfHotspots.length;
+    var sum = 0;
+    var average = 0;
+    if (numberOfHotspots.length === 0) {
+        sum = 0;
+        average = 0;
+    } else {
+        sum = numberOfHotspots.reduce((acc, val) => acc + val);
+        average = sum / numberOfHotspots.length;
+    }
+
 
     var avgHotspots = document.createElement("div");
     avgHotspots.innerHTML =
@@ -117,8 +125,15 @@ function hotspotsAverageDigestibvility(studyArray) {
         }
     }
 
-    const sum = digestibilityArray.reduce((acc, val) => acc + val);
-    const average = sum / digestibilityArray.length;
+    var sum = 0;
+    var average = 0;
+    if (digestibilityArray.length === 0) {
+        sum = 0;
+        average = 0;
+    } else {
+        sum = digestibilityArray.reduce((acc, val) => acc + val);
+        average = sum / digestibilityArray.length;
+    }
 
     var avgDigestibility = document.createElement("div");
     avgDigestibility.innerHTML =
