@@ -44,7 +44,7 @@ function start(array) {
     catch { alert('Data in wrong format'); return }
 
     //use masterCollation to produce some charts
-    //overallAnalysis(studyArray);
+    overallAnalysis(studyArray);
     try { overallAnalysis(studyArray); }
     catch { alert('Data in wrong format'); }
 }
@@ -197,6 +197,7 @@ function overallAnalysis(studyArray) {
     aoiAnalysis(studyArray);
     averageNumberOfHotspots(studyArray);
     hotspotsAverageDigestibvility(studyArray)
+    displayDigestibilityVsHotspotCount(studyArray)
 }
 
 function aoiAnalysis(studyArray) {
@@ -905,6 +906,17 @@ function displayReportSummary(studyArray) {
     let labels = Object.keys(reportTypes);
     let data = Object.values(reportTypes);
 
+    // replace old names with new 
+    let gaze_pathIndex = labels.indexOf("gaze_path");
+    if (gaze_pathIndex !== -1) {
+        labels[gaze_pathIndex] = "hotspots";
+    }
+    let hotspotsIndex = labels.indexOf("hotspots");
+    if (hotspotsIndex !== -1) {
+        labels[hotspotsIndex] = "grid";
+    }
+
+
     var options = {
         title: {
             text: theCanvas.id,
@@ -925,49 +937,37 @@ function displayReportSummary(studyArray) {
                 chart.windowResizeHandler();
             }
         },
-        series: [{
-            name: 'Frequency',
-            data: data,
-            type: 'bar'
-        }],
         chart: {
-            height: 280,
-            width: "100%",
-            type: 'line',
-            zoom: { enabled: true }
+            type: 'donut',
+            height: 280
         },
+        series: data,
+        labels: labels,
         plotOptions: {
-            bar: {
-                horizontal: false,
-                columnWidth: '55%',
-                endingShape: 'rounded'
-            },
-        },
-        dataLabels: {
-            enabled: false
-        },
-        stroke: {
-            show: false,
-            width: 2,
-        },
-        xaxis: {
-            categories: labels
-        },
-        yaxis: {
-
-        },
-        fill: {
-            opacity: 1
-        },
-        tooltip: {
-            y: {
+            pie: {
+                donut: {
+                    size: '65%'
+                }
             }
-        }
+        },
+        responsive: [{
+            breakpoint: 480,
+            options: {
+                chart: {
+                    width: 200
+                },
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }],
+
     };
 
     var chart = new ApexCharts(document.getElementById("reportsSummary"), options);
     chart.render();
 }
+
 function displayMetricSummary(studyArray) {
     let metricTypes = {}; // initialize an empty object to store the totals for each type
 
@@ -1235,4 +1235,100 @@ function displayActiveReportTypes(studyArray) {
     var chart = new ApexCharts(document.getElementById("activeReportsFrequencyChart"), options);
     chart.render();
 
+}
+
+function displayDigestibilityVsHotspotCount(studyArray) {
+    theCanvas = document.createElement("div");
+    theCanvas.className = "chartCard";
+    theCanvas.id = "digestibilityVsHotspots";
+    document.getElementById("output").appendChild(theCanvas);
+
+    arr = []
+
+    studyArray.forEach(study => {
+        study.stages.forEach(stage => {
+            if (stage.hotspots) {
+                if (stage.hotspots.center) {
+                    arr.push({
+                        digestibility: stage.hotspots.center.digestibilityScore,
+                        hotspots: stage.hotspots.center.hotspots.length
+                    })
+                } else if (stage.hotspots.none) {
+                    arr.push({
+                        digestibility: stage.hotspots.none.digestibilityScore,
+                        hotspots: stage.hotspots.none.hotspots.length
+                    })
+                }
+                else {
+                    arr.push({
+                        digestibility: stage.hotspots.digestibilityScore,
+                        hotspots: stage.hotspots.length
+                    })
+                }
+
+            }
+
+        })
+    })
+
+    console.log(arr)
+
+
+    const filteredData = arr.filter(item => item.digestibility !== undefined && item.hotspots !== undefined);
+
+
+    // Create an apexchart scatter plot
+    var options = {
+        title: {
+            text: 'Digestibility vs Hotspot Frequency',
+            align: 'left',
+            margin: 10,
+            offsetX: 0,
+            offsetY: 0,
+            floating: false,
+            style: {
+                fontSize: '13px',
+                fontWeight: '100',
+                fontFamily: 'inter',
+                color: '#a9a9a9'
+            },
+        },
+        chart: {
+            type: 'scatter',
+            height: 300,
+            zoom: {
+                enabled: true,
+                type: 'xy'
+            }
+        },
+        series: [{
+            name: "digestibility/hotspots",
+            data: filteredData.map(obj => ({ y: obj.hotspots, x: obj.digestibility }))
+        }
+        ],
+        xaxis: {
+            title: {
+                show: false
+            },
+            labels: {
+                formatter: function (value) {
+                    return value.toFixed(1).replace(/\.?0+$/, '');
+                }
+            },
+            tickAmount: 10
+        },
+        yaxis: {
+            labels: {
+                formatter: function (value) {
+                    return value.toFixed(1).replace(/\.?0+$/, '');
+                }
+            },
+            title: {
+                show: false
+            }
+        }
+
+    }
+    var chart = new ApexCharts(document.getElementById("digestibilityVsHotspots"), options);
+    chart.render()
 }
