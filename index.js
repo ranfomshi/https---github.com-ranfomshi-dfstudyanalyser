@@ -198,6 +198,7 @@ function overallAnalysis(studyArray) {
     averageNumberOfHotspots(studyArray);
     hotspotsAverageDigestibvility(studyArray)
     displayDigestibilityVsHotspotCount(studyArray)
+    displayAspectRatios(studyArray)
 }
 
 function aoiAnalysis(studyArray) {
@@ -1308,7 +1309,8 @@ function displayDigestibilityVsHotspotCount(studyArray) {
         ],
         xaxis: {
             title: {
-                show: false
+                show: true,
+                text: 'Digestibility'
             },
             labels: {
                 formatter: function (value) {
@@ -1324,7 +1326,8 @@ function displayDigestibilityVsHotspotCount(studyArray) {
                 }
             },
             title: {
-                show: false
+                show: true,
+                text: 'Hotspots'
             }
         }
 
@@ -1332,3 +1335,141 @@ function displayDigestibilityVsHotspotCount(studyArray) {
     var chart = new ApexCharts(document.getElementById("digestibilityVsHotspots"), options);
     chart.render()
 }
+
+function displayAspectRatios(studyArray) {
+
+    theCanvas = document.createElement("div");
+    theCanvas.className = "chartCard";
+    theCanvas.id = "aspectRatios";
+    document.getElementById("output").appendChild(theCanvas);
+
+
+    ratioArray = []
+    studyArray.forEach(study => {
+        study.stages.forEach(stage => {
+            if (stage.imageHeight && stage.imageWidth) {
+
+                ratioArray.push(roundAspectRatio(stage.imageWidth, stage.imageHeight))
+
+            }
+
+        })
+    })
+    console.log(ratioArray)
+
+
+    const summary = ratioArray.reduce((acc, curr) => {
+        if (!acc[curr]) {
+            acc[curr] = 1;
+        } else {
+            acc[curr]++;
+        }
+        return acc;
+    }, {});
+
+    //sort
+    const sortedSummary = Object.fromEntries(Object.entries(summary).sort((a, b) => b[1] - a[1]));
+
+
+
+    var options = {
+        events: {
+            mounted: (chart) => {
+                chart.windowResizeHandler();
+            }
+        },
+        series: [{
+            name: "Data",
+            type: "bar",
+            data: Object.values(sortedSummary)
+        }],
+        labels: Object.keys(sortedSummary),
+        title: {
+            text: theCanvas.id,
+            align: 'left',
+            margin: 10,
+            offsetX: 0,
+            offsetY: 0,
+            floating: false,
+            style: {
+                fontSize: '13px',
+                fontWeight: '100',
+                fontFamily: 'inter',
+                color: '#a9a9a9'
+            },
+        },
+        chart: {
+            type: 'line',
+            height: 280
+        },
+        plotOptions: {
+            bar: {
+                columnWidth: '50%',
+            },
+            line: {
+                curve: 'straight'
+            }
+        },
+        xaxis: {
+            max: 10
+        },
+        responsive: [{
+            breakpoint: 480,
+            options: {
+                chart: {
+                    width: 200
+                },
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }]
+    };
+
+
+
+
+    var chart = new ApexCharts(document.getElementById("aspectRatios"), options);
+    chart.render();
+
+
+
+}
+
+
+function roundAspectRatio(width, height) {
+    // Calculate the aspect ratio
+    const aspectRatio = width / height;
+
+    // Define the commonly used ratios
+    const ratios = ["16:9", "9:16", "1:1", "4:3", "3:4", "191:100", "100:191", "2:3", "3:2", "5:4", "4:5", "2:1", "1:2", "16:10", "10:16", "21:9", "9:21", "9:1", "1:9", "1371:1000", "1000:1371", "6:5", "5:6", "8:1", "1:8", "3:10", "10:3", "39:10", "10:39"];
+
+    // Loop through the ratios and check if the aspect ratio is within 5% tolerance
+    for (let i = 0; i < ratios.length; i++) {
+        const ratio = ratios[i];
+        const [numerator, denominator] = ratio.split(":").map(Number);
+        const tolerance = 0.1 * numerator / denominator;
+        const lowerBound = ratio - tolerance;
+        const upperBound = ratio + tolerance;
+        if (aspectRatio >= lowerBound && aspectRatio <= upperBound) {
+            // Return the rounded ratio if it's within tolerance
+            return ratio;
+        }
+    }
+
+    // If the aspect ratio is not within tolerance of any of the ratios, simplify the aspect ratio
+    const gcd = getGcd(width, height);
+    const simplifiedWidth = width / gcd;
+    const simplifiedHeight = height / gcd;
+    return `${simplifiedWidth}:${simplifiedHeight}`;
+}
+
+// Helper function to calculate the greatest common divisor (GCD) of two numbers
+function getGcd(a, b) {
+    if (b === 0) {
+        return a;
+    } else {
+        return getGcd(b, a % b);
+    }
+}
+
