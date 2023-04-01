@@ -1,4 +1,6 @@
-function start(array) {
+
+
+function start(array, start, end) {
     document.getElementById("startBtn").style.display = "none";
     document.getElementById("jsonInput").style.display = "none";
     document.getElementById("backBtn").style.display = "block";
@@ -14,6 +16,8 @@ function start(array) {
         activeReportType: [],
     };
     aoiData = [];
+
+
 
     //tidy the json input
     var studyArrayString = wrapUrlsInDoubleQuotes("[" + array + "]");
@@ -31,6 +35,15 @@ function start(array) {
     studyArrayString = studyArrayString.replace("}[][]", () => { counter++; return ("}") })
     console.log("replacements (studies without data) = " + counter)
     var studyArray = JSON.parse(addCommasToJsonString(studyArrayString));
+    console.log(start, end)
+    //filter based on start and end date
+    studyArray = studyArray.filter(study => {
+        const createdAt = new Date(study.CreatedAt);
+        const startDate = new Date(start);
+        const endDate = new Date(end);
+        return createdAt >= startDate && createdAt <= endDate;
+    });
+
     //display in console for user validation
     console.log("json vesrion", studyArray);
     //if no studies, alert and reset
