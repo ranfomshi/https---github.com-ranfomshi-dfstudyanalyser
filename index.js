@@ -15,8 +15,6 @@ function start(array, start, end) {
     };
     aoiData = [];
 
-
-
     //tidy the json input
     var studyArrayString = wrapUrlsInDoubleQuotes("[" + array + "]");
     //check for empty studies and remove - this handles up to three in a row either at the start, somewhere in the middle, or at the end
@@ -32,7 +30,7 @@ function start(array, start, end) {
     studyArrayString = studyArrayString.replace("}[][]", () => { counter++; return ("}") })
     studyArrayString = studyArrayString.replace("}[][]", () => { counter++; return ("}") })
     console.log("replacements (studies without data) = " + counter)
-    var studyArray = JSON.parse(addCommasToJsonString(studyArrayString));
+    studyArray = JSON.parse(addCommasToJsonString(studyArrayString));
     console.log(start, end)
     //filter based on start and end date
 
@@ -50,7 +48,7 @@ function start(array, start, end) {
         }
     );
 
-
+    //apply the date filter - if none selected, use the min and max dates from the query result
     studyArray = studyArray.filter(study => {
         var createdAt = new Date(study.CreatedAt);
         if (!start || start == undefined) {
@@ -81,6 +79,53 @@ function start(array, start, end) {
     catch { alert('Data in wrong format'); }
 }
 
+function populateDates() {
+    console.log('pop dates fired')
+    var array = document.getElementById('jsonInput').value
+    //tidy the json input
+    var studyArrayString = wrapUrlsInDoubleQuotes("[" + array + "]");
+    //check for empty studies and remove - this handles up to three in a row either at the start, somewhere in the middle, or at the end
+    var counter = 0
+    studyArrayString = studyArrayString.replace(/(?:\r\n|\r|\n)/g, '')
+    studyArrayString = studyArrayString.replace("}[]{", () => { counter++; return ("}{") })
+    studyArrayString = studyArrayString.replace("}[][]{", () => { counter++; return ("}{") })
+    studyArrayString = studyArrayString.replace("}[][][]{", () => { counter++; return ("}{") })
+    studyArrayString = studyArrayString.replace("[]{", () => { counter++; return ("{") })
+    studyArrayString = studyArrayString.replace("[][]{", () => { counter++; return ("{") })
+    studyArrayString = studyArrayString.replace("[][][]{", () => { counter++; return ("{") })
+    studyArrayString = studyArrayString.replace("}[]", () => { counter++; return ("}") })
+    studyArrayString = studyArrayString.replace("}[][]", () => { counter++; return ("}") })
+    studyArrayString = studyArrayString.replace("}[][]", () => { counter++; return ("}") })
+    console.log("replacements (studies without data) = " + counter)
+    studyArray = JSON.parse(addCommasToJsonString(studyArrayString));
+
+    console.log("debug", studyArray)
+
+    var { minDate, maxDate } = studyArray.reduce(
+        (accumulator, current) => {
+            const { CreatedAt } = current;
+            return {
+                minDate: CreatedAt < accumulator.minDate ? CreatedAt : accumulator.minDate,
+                maxDate: CreatedAt > accumulator.maxDate ? CreatedAt : accumulator.maxDate,
+            };
+        },
+        {
+            minDate: studyArray[0].CreatedAt,
+            maxDate: studyArray[0].CreatedAt,
+        }
+    );
+
+    document.getElementById('startdate').value = minDate.slice(0, 10)
+    document.getElementById('startdate').setAttribute('min', minDate.slice(0, 10))
+    document.getElementById('startdate').setAttribute('max', maxDate.slice(0, 10))
+    document.getElementById('enddate').value = maxDate.slice(0, 10)
+    document.getElementById('enddate').setAttribute('min', minDate.slice(0, 10))
+    document.getElementById('enddate').setAttribute('max', maxDate.slice(0, 10))
+
+
+    console.log(minDate, maxDate)
+}
+
 var masterCollation = {
     numberOfReports: [],
     numberOfActiveVersions: [],
@@ -88,6 +133,7 @@ var masterCollation = {
     activeReportType: [],
 };
 var aoiData = [];
+var studyArray = [];
 
 function averageNumberOfHotspots(studyArray) {
     const numberOfHotspots = [];
