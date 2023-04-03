@@ -21,10 +21,52 @@
     </div>
     <div class="content">
 
-        <div id="instruction" style="height: fit-content; max-height: fit-content;" class="chartCard">
-            <h3>Load your JSON as rows from the db field called "Data" from the Studies table</h3>
-            <p>You do not need to add comma separation or square brackets around array. Doing so may result in errors
-            </p>
+        <div id="instruction" style="height: fit-content; max-height: fit-content; text-align: left;" class="chartCard">
+            <div id="codeContainer">
+                <div style="display: flex; align-items: center;"><span
+                        style="color: #FF5723; margin-right: 10px;">&#9312;</span>
+                    <h3>Use this SQL query to get the data in the correct format</h3>
+                    <button class="btn" onclick="showHideCode()">Show Example</button><button class="btn"
+                        onclick="copy()">Copy to Clipboard</button>
+                </div>
+
+                <code class="code" id="code" style="display: none;">
+                SELECT jsonb_set(
+                s."Data"::jsonb,
+                '{CreatedAt}',
+                to_jsonb(s."CreatedAt")
+                ) as "NestedData"
+                FROM "Studies" s
+                LEFT JOIN "Projects" p ON p."Id" = s."ProjectId"
+                LEFT JOIN "Accounts" a ON a."Id" = p."AccountId"
+                WHERE s."ProjectId" IN (
+                SELECT p."Id" FROM "Projects" p
+                LEFT JOIN "Accounts" a ON p."AccountId" = a."Id"
+                WHERE a."Company" LIKE '%%'
+                )
+                AND p."UserId" IN (
+                SELECT "Id" FROM "Users" u
+                WHERE "Email" NOT LIKE '%dragonflyai.co%'
+                )
+                AND s."Data" != '[]'
+                AND s."CreatedAt" > NOW() - INTERVAL '6 months'
+                LIMIT 100
+                
+            </code>
+                <hr>
+                <div style="display:flex; align-items: center;"> <span
+                        style="color: #FF5723; margin-right: 10px;">&#9313;</span>
+                    <h3>Paste the result of your query below</h3>
+                </div>
+
+
+            </div>
+            <hr>
+            <div style="display:flex; align-items: center;"> <span
+                    style="color: #FF5723; margin-right: 10px;">&#9314;</span>
+                <h3>You can narrow the dates further if required</h3>
+            </div>
+
             <div class="dates">
                 <div><label for="startdate">Start Date:</label>
                     <input type="date" id="startdate">
@@ -15601,10 +15643,16 @@
             </textarea>
 
 
+            <div style="display:flex; align-items: center;"> <span
+                    style="color: #FF5723; margin-right: 10px;">&#9315;</span>
+                <h3>View the results</h3><button
+                    onclick="start(getElementById('jsonInput').value, getElementById('startdate').value, getElementById('enddate').value ); window.dispatchEvent(new Event('resize'));"
+                    class="btn" id="startBtn">GO</button>
+            </div>
 
-        </div> <button
-            onclick="start(getElementById('jsonInput').value, getElementById('startdate').value, getElementById('enddate').value ); window.dispatchEvent(new Event('resize'));"
-            class="btn" id="startBtn">GO</button>
+
+
+        </div>
         <button onclick="reset()" class="btn" style="display:none;" id="backBtn">BACK</button>
         <div id="summaryData"></div>
         <div class="output" id="output"></div>

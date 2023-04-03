@@ -1,5 +1,3 @@
-
-
 function start(array, start, end) {
     document.getElementById("startBtn").style.display = "none";
     document.getElementById("jsonInput").style.display = "none";
@@ -37,10 +35,32 @@ function start(array, start, end) {
     var studyArray = JSON.parse(addCommasToJsonString(studyArrayString));
     console.log(start, end)
     //filter based on start and end date
+
+    var { minDate, maxDate } = studyArray.reduce(
+        (accumulator, current) => {
+            const { CreatedAt } = current;
+            return {
+                minDate: CreatedAt < accumulator.minDate ? CreatedAt : accumulator.minDate,
+                maxDate: CreatedAt > accumulator.maxDate ? CreatedAt : accumulator.maxDate,
+            };
+        },
+        {
+            minDate: studyArray[0].CreatedAt,
+            maxDate: studyArray[0].CreatedAt,
+        }
+    );
+
+
     studyArray = studyArray.filter(study => {
-        const createdAt = new Date(study.CreatedAt);
-        const startDate = new Date(start);
-        const endDate = new Date(end);
+        var createdAt = new Date(study.CreatedAt);
+        if (!start || start == undefined) {
+            start == minDate
+        }
+        if (!end || end == undefined) {
+            end == maxDate
+        }
+        var startDate = new Date(start);
+        var endDate = new Date(end);
         return createdAt >= startDate && createdAt <= endDate;
     });
 
@@ -49,7 +69,6 @@ function start(array, start, end) {
     //if no studies, alert and reset
     if (studyArray.length == 0) {
         alert('no populated studies found');
-        window.location.reload()
     }
     //iterate on each study to produce any per study analysis and to start aggregation data
     //into another array called masterCollation
@@ -250,6 +269,25 @@ function aoiAnalysis(studyArray) {
     displayBenchmarkAverages();
     displayShapeBreakdown()
     metricVsMetric()
+}
+
+function showHideCode() {
+    if (document.getElementById('code').style.display == 'none') {
+        document.getElementById('code').style.display = 'inline'
+    }
+    else {
+        document.getElementById('code').style.display = "none"
+    }
+}
+
+function copy() {
+    var code = document.getElementById("code");
+    var range = document.createRange();
+    range.selectNode(code);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    document.execCommand("copy");
+    alert("Copied to clipboard!");
 }
 
 function displayShapeBreakdown() {
