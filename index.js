@@ -277,6 +277,7 @@ function overallAnalysis(studyArray) {
     hotspotsAverageDigestibvility(studyArray)
     displayDigestibilityVsHotspotCount(studyArray)
     displayAspectRatios(studyArray)
+    displayStudiesOverTime()
 }
 
 function aoiAnalysis(studyArray) {
@@ -1569,4 +1570,91 @@ function getGcd(a, b) {
         return getGcd(b, a % b);
     }
 }
+
+function displayStudiesOverTime() {
+    const theCanvas = document.createElement("div");
+    theCanvas.className = "chartCard";
+    theCanvas.id = "studiesOverTime";
+    document.getElementById("output").appendChild(theCanvas);
+
+    const data = studyArray.reduce((acc, study) => {
+        const studyDate = new Date(study.CreatedAt);
+        const year = studyDate.getFullYear();
+        const month = studyDate.getMonth();
+        const weekNumber = getWeekNumber(studyDate);
+        const weekData = acc.find((x) => x.x === weekNumber);
+        if (weekData) {
+            weekData.y++;
+        } else {
+            acc.push({
+                x: weekNumber,
+                y: 1
+            });
+        }
+        return acc;
+    }, []).sort((a, b) => a.x - b.x);
+
+    const options = {
+        title: {
+            text: theCanvas.id + ' by Week',
+            align: 'left',
+            margin: 10,
+            offsetX: 0,
+            offsetY: 0,
+            floating: false,
+            style: {
+                fontSize: '13px',
+                fontWeight: '100',
+                fontFamily: 'inter',
+                color: '#a9a9a9'
+            },
+        },
+        stroke: {
+            curve: 'smooth'
+        },
+        series: [{
+            data: data,
+            type: 'area'
+        }],
+        chart: {
+            type: "line",
+            height: 280
+        },
+        xaxis: {
+            type: "datetime",
+            tickAmount: 'dataSteps',
+            labels: {
+                datetimeFormatter: {
+                    year: 'yyyy',
+                    month: "MMM 'yy",
+                    day: 'dd MMM',
+                    hour: 'HH:mm'
+                }
+            },
+            min: data[0].x,
+            max: data[data.length - 1].x,
+        },
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            curve: 'smooth'
+        },
+    };
+    const chart = new ApexCharts(document.getElementById("studiesOverTime"), options);
+    chart.render();
+}
+
+function getWeekNumber(date) {
+    const onejan = new Date(date.getFullYear(), 0, 1);
+    const weekNumber = Math.ceil(((date - onejan) / 86400000 + onejan.getDay() + 1) / 7);
+    const year = date.getFullYear();
+    return new Date(year, 0, (weekNumber - 1) * 7).getTime();
+}
+
+
+
+
+
+
 
