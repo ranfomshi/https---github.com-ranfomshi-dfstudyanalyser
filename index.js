@@ -1,3 +1,14 @@
+var companies = []
+var companyFilter = []
+var masterCollation = {
+    numberOfReports: [],
+    numberOfActiveVersions: [],
+    NumberOfVisibleVersions: [],
+    activeReportType: [],
+};
+var aoiData = [];
+var studyArray = [];
+
 function start(array, start, end) {
     document.getElementById("startBtn").style.display = "none";
     document.getElementById("jsonInput").style.display = "none";
@@ -64,6 +75,8 @@ function start(array, start, end) {
     catch { alert('Data in wrong format'); }
 }
 
+
+
 function applyCompanyFilter(companyNames) {
     // prep for filter
     var newArray = tidyResults("[" + document.getElementById('jsonInput').value + "]");
@@ -105,14 +118,7 @@ function populateDates() {
     document.getElementById('enddate').setAttribute('max', maxDate.slice(0, 10))
 }
 
-var masterCollation = {
-    numberOfReports: [],
-    numberOfActiveVersions: [],
-    NumberOfVisibleVersions: [],
-    activeReportType: [],
-};
-var aoiData = [];
-var studyArray = [];
+
 
 function averageNumberOfHotspots(studyArray) {
     const numberOfHotspots = [];
