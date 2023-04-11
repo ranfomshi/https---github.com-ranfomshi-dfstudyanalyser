@@ -319,11 +319,11 @@ function aoiAnalysis(studyArray) {
 }
 
 function showHideCode() {
-    if (document.getElementById('code').style.display == 'none') {
-        document.getElementById('code').style.display = 'inline'
+    if (document.getElementById('code').style.maxHeight == '0px') {
+        document.getElementById('code').style.maxHeight = '400px'
     }
     else {
-        document.getElementById('code').style.display = "none"
+        document.getElementById('code').style.maxHeight = '0px'
     }
 }
 
@@ -1438,7 +1438,7 @@ function displayAspectRatios(studyArray) {
 
     theCanvas = document.createElement("div");
     theCanvas.className = "chartCard";
-    theCanvas.id = "aspectRatios";
+    theCanvas.id = "ImageAspectRatios";
     document.getElementById("output").appendChild(theCanvas);
 
 

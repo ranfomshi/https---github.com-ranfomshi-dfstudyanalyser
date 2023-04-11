@@ -33,7 +33,7 @@
                         onclick="copy()">Copy to Clipboard</button>
                 </div>
 
-                <code class="code" id="code" style="display: none;">
+                <code class="code" id="code" style="max-height: 0px; display: block; overflow: hidden;">
                 SELECT jsonb_set(<br>
                 s."Data"::jsonb,<br>
                 '{CreatedAt}',
