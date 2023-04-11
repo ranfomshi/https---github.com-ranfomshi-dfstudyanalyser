@@ -16,24 +16,9 @@ function start(array, start, end) {
     aoiData = [];
 
     //tidy the json input
-    var studyArrayString = wrapUrlsInDoubleQuotes("[" + array + "]");
-    //check for empty studies and remove - this handles up to three in a row either at the start, somewhere in the middle, or at the end
-    var counter = 0
-    studyArrayString = studyArrayString.replace(/(?:\r\n|\r|\n)/g, '')
-    studyArrayString = studyArrayString.replace("}[]{", () => { counter++; return ("}{") })
-    studyArrayString = studyArrayString.replace("}[][]{", () => { counter++; return ("}{") })
-    studyArrayString = studyArrayString.replace("}[][][]{", () => { counter++; return ("}{") })
-    studyArrayString = studyArrayString.replace("[]{", () => { counter++; return ("{") })
-    studyArrayString = studyArrayString.replace("[][]{", () => { counter++; return ("{") })
-    studyArrayString = studyArrayString.replace("[][][]{", () => { counter++; return ("{") })
-    studyArrayString = studyArrayString.replace("}[]", () => { counter++; return ("}") })
-    studyArrayString = studyArrayString.replace("}[][]", () => { counter++; return ("}") })
-    studyArrayString = studyArrayString.replace("}[][]", () => { counter++; return ("}") })
-    console.log("replacements (studies without data) = " + counter)
-    studyArray = JSON.parse(addCommasToJsonString(studyArrayString));
-    console.log(start, end)
-    //filter based on start and end date
+    var studyArray = tidyResults("[" + array + "]");
 
+    //create min and max var for filtering
     var { minDate, maxDate } = studyArray.reduce(
         (accumulator, current) => {
             const { CreatedAt } = current;
@@ -79,27 +64,24 @@ function start(array, start, end) {
     catch { alert('Data in wrong format'); }
 }
 
+function applyCompanyFilter(companyNames) {
+    // prep for filter
+    var newArray = tidyResults("[" + document.getElementById('jsonInput').value + "]");
+
+    // apply filter
+    newArray = newArray.filter(study => companyNames.includes(study.Company));
+
+    // get json array back to string format that start function expects
+    stringVal = JSON.stringify(newArray).slice(1, -1);
+
+    // trigger start function
+    start(stringVal, document.getElementById('startdate').value, document.getElementById('enddate').value);
+}
+
 function populateDates() {
-    console.log('pop dates fired')
     var array = document.getElementById('jsonInput').value
     //tidy the json input
-    var studyArrayString = wrapUrlsInDoubleQuotes("[" + array + "]");
-    //check for empty studies and remove - this handles up to three in a row either at the start, somewhere in the middle, or at the end
-    var counter = 0
-    studyArrayString = studyArrayString.replace(/(?:\r\n|\r|\n)/g, '')
-    studyArrayString = studyArrayString.replace("}[]{", () => { counter++; return ("}{") })
-    studyArrayString = studyArrayString.replace("}[][]{", () => { counter++; return ("}{") })
-    studyArrayString = studyArrayString.replace("}[][][]{", () => { counter++; return ("}{") })
-    studyArrayString = studyArrayString.replace("[]{", () => { counter++; return ("{") })
-    studyArrayString = studyArrayString.replace("[][]{", () => { counter++; return ("{") })
-    studyArrayString = studyArrayString.replace("[][][]{", () => { counter++; return ("{") })
-    studyArrayString = studyArrayString.replace("}[]", () => { counter++; return ("}") })
-    studyArrayString = studyArrayString.replace("}[][]", () => { counter++; return ("}") })
-    studyArrayString = studyArrayString.replace("}[][]", () => { counter++; return ("}") })
-    console.log("replacements (studies without data) = " + counter)
-    studyArray = JSON.parse(addCommasToJsonString(studyArrayString));
-
-    console.log("debug", studyArray)
+    var studyArray = tidyResults("[" + array + "]");
 
     var { minDate, maxDate } = studyArray.reduce(
         (accumulator, current) => {
@@ -121,9 +103,6 @@ function populateDates() {
     document.getElementById('enddate').value = maxDate.slice(0, 10)
     document.getElementById('enddate').setAttribute('min', minDate.slice(0, 10))
     document.getElementById('enddate').setAttribute('max', maxDate.slice(0, 10))
-
-
-    console.log(minDate, maxDate)
 }
 
 var masterCollation = {
@@ -277,7 +256,7 @@ function overallAnalysis(studyArray) {
     hotspotsAverageDigestibvility(studyArray)
     displayDigestibilityVsHotspotCount(studyArray)
     displayAspectRatios(studyArray)
-    displayStudiesOverTime()
+    displayStudiesOverTime(studyArray)
 }
 
 function aoiAnalysis(studyArray) {
@@ -301,7 +280,9 @@ function aoiAnalysis(studyArray) {
                             las: shape.las,
                             soa: shape.soa,
                             pow: shape.pow,
-                            type: shape.type
+                            type: shape.type,
+                            height: shape.height,
+                            width: shape.width
                         });
 
                     });
@@ -316,6 +297,7 @@ function aoiAnalysis(studyArray) {
     displayBenchmarkAverages();
     displayShapeBreakdown()
     metricVsMetric()
+    displayAoiAspectRatios()
 }
 
 function showHideCode() {
@@ -386,7 +368,6 @@ function displayBenchmarkAverages() {
 
     cb.onclick = () => {
         stack = !stack
-        console.log(stack)
         chart.updateOptions({
             chart: {
                 height: 350,
@@ -608,12 +589,27 @@ function metricVsMetric() {
     chart.render()
 }
 
-function wrapUrlsInDoubleQuotes(str) {
+function tidyResults(str) {
     if (typeof str !== "string") {
-        throw new TypeError("wrapUrlsInDoubleQuotes expects a string");
+        throw new TypeError("tidyResults expects a string");
     }
 
-    return str.replace(/(https?:\/\/(?!")[^\s,]+)(?<!")(\s*,)/g, '"$1"$2');
+    str = str.replace(/(https?:\/\/(?!")[^\s,]+)(?<!")(\s*,)/g, '"$1"$2');
+
+    //check for empty studies and remove - this handles up to three in a row either at the start, somewhere in the middle, or at the end
+    var counter = 0
+    str = str.replace(/(?:\r\n|\r|\n)/g, '')
+    str = str.replace("}[]{", () => { counter++; return ("}{") })
+    str = str.replace("}[][]{", () => { counter++; return ("}{") })
+    str = str.replace("}[][][]{", () => { counter++; return ("}{") })
+    str = str.replace("[]{", () => { counter++; return ("{") })
+    str = str.replace("[][]{", () => { counter++; return ("{") })
+    str = str.replace("[][][]{", () => { counter++; return ("{") })
+    str = str.replace("}[]", () => { counter++; return ("}") })
+    str = str.replace("}[][]", () => { counter++; return ("}") })
+    str = str.replace("}[][]", () => { counter++; return ("}") })
+    console.log("replacements (studies without data) = " + counter)
+    return JSON.parse(addCommasToJsonString(str));
 }
 
 function addCommasToJsonString(jsonString) {
@@ -1370,11 +1366,7 @@ function displayDigestibilityVsHotspotCount(studyArray) {
         })
     })
 
-    console.log(arr)
-
-
     const filteredData = arr.filter(item => item.digestibility !== undefined && item.hotspots !== undefined);
-
 
     // Create an apexchart scatter plot
     var options = {
@@ -1453,7 +1445,101 @@ function displayAspectRatios(studyArray) {
 
         })
     })
-    console.log(ratioArray)
+
+    const summary = ratioArray.reduce((acc, curr) => {
+        if (!acc[curr]) {
+            acc[curr] = 1;
+        } else {
+            acc[curr]++;
+        }
+        return acc;
+    }, {});
+
+    //sort
+    const sortedSummary = Object.fromEntries(Object.entries(summary).sort((a, b) => b[1] - a[1]));
+
+    var options = {
+        events: {
+            mounted: (chart) => {
+                chart.windowResizeHandler();
+            }
+        },
+        series: [{
+            name: "Data",
+            type: "bar",
+            data: Object.values(sortedSummary)
+        }],
+        labels: Object.keys(sortedSummary),
+        title: {
+            text: theCanvas.id,
+            align: 'left',
+            margin: 10,
+            offsetX: 0,
+            offsetY: 0,
+            floating: false,
+            style: {
+                fontSize: '13px',
+                fontWeight: '100',
+                fontFamily: 'inter',
+                color: '#a9a9a9'
+            },
+        },
+        chart: {
+            type: 'line',
+            height: 280
+        },
+        plotOptions: {
+            bar: {
+                columnWidth: '50%',
+            },
+            line: {
+                curve: 'straight'
+            }
+        },
+        xaxis: {
+            max: 10
+        },
+        responsive: [{
+            breakpoint: 480,
+            options: {
+                chart: {
+                    width: 200
+                },
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }]
+    };
+
+
+
+
+    var chart = new ApexCharts(document.getElementById("ImageAspectRatios"), options);
+    chart.render();
+
+
+
+}
+
+function displayAoiAspectRatios() {
+
+    theCanvas = document.createElement("div");
+    theCanvas.className = "chartCard";
+    theCanvas.id = "AoiAspectRatios";
+    document.getElementById("output").appendChild(theCanvas);
+
+
+    ratioArray = []
+
+    aoiData.forEach(aoi => {
+        if (aoi.height && aoi.width) {
+
+            ratioArray.push(roundAspectRatio(aoi.width, aoi.height))
+
+        }
+
+    })
 
 
     const summary = ratioArray.reduce((acc, curr) => {
@@ -1527,13 +1613,12 @@ function displayAspectRatios(studyArray) {
 
 
 
-    var chart = new ApexCharts(document.getElementById("aspectRatios"), options);
+    var chart = new ApexCharts(document.getElementById("AoiAspectRatios"), options);
     chart.render();
 
 
 
 }
-
 
 function roundAspectRatio(width, height) {
     // Calculate the aspect ratio
@@ -1542,7 +1627,7 @@ function roundAspectRatio(width, height) {
     // Define the commonly used ratios
     const ratios = ["16:9", "9:16", "1:1", "4:3", "3:4", "191:100", "100:191", "2:3", "3:2", "5:4", "4:5", "2:1", "1:2", "16:10", "10:16", "21:9", "9:21", "9:1", "1:9", "1371:1000", "1000:1371", "6:5", "5:6", "8:1", "1:8", "3:10", "10:3", "39:10", "10:39"];
 
-    // Loop through the ratios and check if the aspect ratio is within 5% tolerance
+    // Loop through the ratios and check if the aspect ratio is within x% tolerance
     for (let i = 0; i < ratios.length; i++) {
         const ratio = ratios[i];
         const [numerator, denominator] = ratio.split(":").map(Number);
@@ -1571,12 +1656,11 @@ function getGcd(a, b) {
     }
 }
 
-function displayStudiesOverTime() {
+function displayStudiesOverTime(studyArray) {
     const theCanvas = document.createElement("div");
     theCanvas.className = "chartCard";
     theCanvas.id = "studiesOverTime";
     document.getElementById("output").appendChild(theCanvas);
-
     const data = studyArray.reduce((acc, study) => {
         const studyDate = new Date(study.CreatedAt);
         const year = studyDate.getFullYear();
@@ -1651,6 +1735,8 @@ function getWeekNumber(date) {
     const year = date.getFullYear();
     return new Date(year, 0, (weekNumber - 1) * 7).getTime();
 }
+
+
 
 
 
