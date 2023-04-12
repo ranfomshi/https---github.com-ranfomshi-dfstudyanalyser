@@ -85,31 +85,38 @@ function start(array, start, end) {
 
 function displayCompanies(x) {
     var addedCompanies = {}; // use an object to keep track of added companies
-    var companyList = []; // use an array to store the sorted companies
+    var companyList = []; // use an array to store the sorted companies and their counts
 
     // Iterate over studies to create a list of unique companies
     x.forEach(study => {
         if (!addedCompanies[study.Company]) { // check if company has already been added
             addedCompanies[study.Company] = true; // mark company as added
-            companyList.push(study.Company); // add company to list
+            companyList.push({
+                name: study.Company,
+                count: 1
+            }); // add company to list with count 1
+        } else { // company already added
+            // increment count for company
+            companyList.find(company => company.name === study.Company).count++;
         }
     });
 
     // Sort companies alphabetically
-    companyList.sort();
+    companyList.sort((a, b) => a.name.localeCompare(b.name));
 
     // Render buttons for each company in sorted list
     companyList.forEach(company => {
         var additionalCompany = document.createElement('button')
-        if (!companyFilter.includes(company)) { additionalCompany.classList.add('filterBtn') }
-        else { additionalCompany.classList.add('filterBtnSecondary') }
+        if (!companyFilter.includes(company.name)) { additionalCompany.classList.add('filterBtn') }
+        else { additionalCompany.classList.add('filterBtn'); additionalCompany.classList.add('filterBtnSecondary'); }
 
-        additionalCompany.value = company
-        additionalCompany.innerText = company
-        additionalCompany.onclick = () => { toggleCompanyfilter(company) }
+        additionalCompany.value = company.name
+        additionalCompany.innerText = `${company.name} (${company.count})`
+        additionalCompany.onclick = () => { toggleCompanyfilter(company.name) }
         document.getElementById('companiesFilter').appendChild(additionalCompany)
     });
 }
+
 
 
 function toggleCompanyfilter(company) {

@@ -263,17 +263,15 @@ textarea:focus {
     margin: 3px 3px 3px 0;
     border-radius: 5px;
     cursor: pointer;
+    -webkit-transition: all 6s linear;
+    -moz-transition: all 6s linear;
+    -ms-transition: all 6s linear;
+    -o-transition: all 6s linear;
+    transition: all 6s linear;
 }
 
 .filterBtnSecondary {
-    border: none;
-    background-color: #e02d45;
-    color: white;
-    text-align: center;
-    padding: 6px;
-    margin: 3px 3px 3px 0;
-    border-radius: 5px;
-    cursor: pointer;
+    background-color: #e02d45 !important;
 }
 
 .companiesFilter {
