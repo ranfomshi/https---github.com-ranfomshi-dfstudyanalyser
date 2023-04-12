@@ -85,19 +85,30 @@ function start(array, start, end) {
 
 function displayCompanies(x) {
     var addedCompanies = {}; // use an object to keep track of added companies
+    var companyList = []; // use an array to store the sorted companies
+
+    // Iterate over studies to create a list of unique companies
     x.forEach(study => {
         if (!addedCompanies[study.Company]) { // check if company has already been added
             addedCompanies[study.Company] = true; // mark company as added
-            var additionalCompany = document.createElement('button')
-            if (!companyFilter.includes(study.Company)) { additionalCompany.classList.add('filterBtn') }
-            else { additionalCompany.classList.add('filterBtnSecondary') }
-
-            additionalCompany.value = study.Company
-            additionalCompany.innerText = study.Company
-            additionalCompany.onclick = () => { toggleCompanyfilter(study.Company) }
-            document.getElementById('companiesFilter').appendChild(additionalCompany)
+            companyList.push(study.Company); // add company to list
         }
-    })
+    });
+
+    // Sort companies alphabetically
+    companyList.sort();
+
+    // Render buttons for each company in sorted list
+    companyList.forEach(company => {
+        var additionalCompany = document.createElement('button')
+        if (!companyFilter.includes(company)) { additionalCompany.classList.add('filterBtn') }
+        else { additionalCompany.classList.add('filterBtnSecondary') }
+
+        additionalCompany.value = company
+        additionalCompany.innerText = company
+        additionalCompany.onclick = () => { toggleCompanyfilter(company) }
+        document.getElementById('companiesFilter').appendChild(additionalCompany)
+    });
 }
 
 
