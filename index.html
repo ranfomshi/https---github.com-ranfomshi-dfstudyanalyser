@@ -71,15 +71,7 @@
                 <h3>You can narrow the dates further if required</h3>
             </div>
 
-            <div class="dates">
-                <div><label for="startdate">Start Date:</label>
-                    <input type="date" id="startdate">
-                </div>
 
-                <div><label for="enddate">End Date:</label>
-                    <input type="date" id="enddate">
-                </div>
-            </div>
 
 
             <textarea oninput="populateDates()" id="jsonInput">
@@ -12355,6 +12347,19 @@ true, "gaze_path": false, "digestibility": false}, "settings": {"map": "heat", "
 
         </div>
         <button onclick="reset()" class="btn" style="display:none;" id="backBtn">BACK</button>
+        <div class="dates">
+            <div><label for="startdate">Start Date:</label>
+                <input
+                    onchange="start(getElementById('jsonInput').value, getElementById('startdate').value, getElementById('enddate').value )"
+                    type="date" id="startdate">
+            </div>
+
+            <div><label for="enddate">End Date:</label>
+                <input
+                    onchange="start(getElementById('jsonInput').value, getElementById('startdate').value, getElementById('enddate').value )"
+                    type="date" id="enddate">
+            </div>
+        </div>
         <div id="summaryData">
 
         </div>

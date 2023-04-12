@@ -87,19 +87,28 @@ function displayCompanies(x) {
     var addedCompanies = {}; // use an object to keep track of added companies
     var companyList = []; // use an array to store the sorted companies and their counts
 
+
+    // Define start and end dates for the range
+    var startDate = new Date(document.getElementById('startdate').value)
+    var endDate = new Date(document.getElementById('enddate').value)
+
     // Iterate over studies to create a list of unique companies
     x.forEach(study => {
-        if (!addedCompanies[study.Company]) { // check if company has already been added
-            addedCompanies[study.Company] = true; // mark company as added
-            companyList.push({
-                name: study.Company,
-                count: 1
-            }); // add company to list with count 1
-        } else { // company already added
-            // increment count for company
-            companyList.find(company => company.name === study.Company).count++;
+        const studyDate = new Date(study.CreatedAt);
+        if (studyDate >= startDate && studyDate <= endDate) { // check if study date is within range
+            if (!addedCompanies[study.Company]) { // check if company has already been added
+                addedCompanies[study.Company] = true; // mark company as added
+                companyList.push({
+                    name: study.Company,
+                    count: 1
+                }); // add company to list with count 1
+            } else { // company already added
+                // increment count for company
+                companyList.find(company => company.name === study.Company).count++;
+            }
         }
     });
+
 
     // Sort companies alphabetically
     companyList.sort((a, b) => a.name.localeCompare(b.name));
