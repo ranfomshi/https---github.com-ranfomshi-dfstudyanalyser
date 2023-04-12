@@ -1,4 +1,3 @@
-var companies = []
 var companyFilter = []
 var masterCollation = {
     numberOfReports: [],
@@ -16,6 +15,7 @@ function start(array, start, end) {
     document.getElementById("instruction").style.display = "none";
     //clear previous output charts etc
     document.getElementById("output").innerHTML = "";
+    document.getElementById("companiesFilter").innerHTML = "";
     document.getElementById("summaryData").innerText = "";
     //clear data ready for fresh input
     masterCollation = {
@@ -28,6 +28,8 @@ function start(array, start, end) {
 
     //tidy the json input
     var studyArray = tidyResults("[" + array + "]");
+
+    displayCompanies(tidyResults("[" + document.getElementById("jsonInput").value + "]"))
 
     //create min and max var for filtering
     var { minDate, maxDate } = studyArray.reduce(
@@ -44,6 +46,8 @@ function start(array, start, end) {
         }
     );
 
+
+
     //apply the date filter - if none selected, use the min and max dates from the query result
     studyArray = studyArray.filter(study => {
         var createdAt = new Date(study.CreatedAt);
@@ -57,6 +61,8 @@ function start(array, start, end) {
         var endDate = new Date(end);
         return createdAt >= startDate && createdAt <= endDate;
     });
+
+
 
     //display in console for user validation
     console.log("json vesrion", studyArray);
@@ -73,16 +79,44 @@ function start(array, start, end) {
     //overallAnalysis(studyArray);
     try { overallAnalysis(studyArray); }
     catch { alert('Data in wrong format'); }
+
+
+}
+
+function displayCompanies(x) {
+    var addedCompanies = {}; // use an object to keep track of added companies
+    x.forEach(study => {
+        if (!addedCompanies[study.Company]) { // check if company has already been added
+            addedCompanies[study.Company] = true; // mark company as added
+            var additionalCompany = document.createElement('button')
+            if (!companyFilter.includes(study.Company)) { additionalCompany.classList.add('filterBtn') }
+            else { additionalCompany.classList.add('filterBtnSecondary') }
+
+            additionalCompany.value = study.Company
+            additionalCompany.innerText = study.Company
+            additionalCompany.onclick = () => { toggleCompanyfilter(study.Company) }
+            document.getElementById('companiesFilter').appendChild(additionalCompany)
+        }
+    })
 }
 
 
+function toggleCompanyfilter(company) {
+    const index = companyFilter.indexOf(company);
+    if (index > -1) {
+        companyFilter.splice(index, 1);
+    } else {
+        companyFilter.push(company);
+    }
+    applyCompanyFilter(companyFilter)
+}
 
 function applyCompanyFilter(companyNames) {
     // prep for filter
     var newArray = tidyResults("[" + document.getElementById('jsonInput').value + "]");
 
     // apply filter
-    newArray = newArray.filter(study => companyNames.includes(study.Company));
+    newArray = newArray.filter(study => !companyNames.includes(study.Company));
 
     // get json array back to string format that start function expects
     stringVal = JSON.stringify(newArray).slice(1, -1);
@@ -117,8 +151,6 @@ function populateDates() {
     document.getElementById('enddate').setAttribute('min', minDate.slice(0, 10))
     document.getElementById('enddate').setAttribute('max', maxDate.slice(0, 10))
 }
-
-
 
 function averageNumberOfHotspots(studyArray) {
     const numberOfHotspots = [];
@@ -1229,6 +1261,7 @@ function averageVersionsPerStudy(studyArray) {
 
 function reset() {
     //clear previous output charts etc
+    document.getElementById("companiesFilter").innerHTML = "";
     document.getElementById("output").innerHTML = "";
     document.getElementById("summaryData").innerText = "";
     //clear data ready for fresh input

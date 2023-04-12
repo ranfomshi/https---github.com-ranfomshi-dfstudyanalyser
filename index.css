@@ -253,3 +253,31 @@ textarea:focus {
     -o-transition: max-height 0.6s;
     transition: max-height 0.6s;
 }
+
+.filterBtn {
+    border: none;
+    background-color: #2d3ce0;
+    color: white;
+    text-align: center;
+    padding: 3px;
+    margin: 3px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.filterBtnSecondary {
+    border: none;
+    background-color: #e02d45;
+    color: white;
+    text-align: center;
+    padding: 3px;
+    margin: 3px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.companiesFilter {
+    display: inline-flex;
+    flex-wrap: wrap;
+    padding: 10px;
+}
