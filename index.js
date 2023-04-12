@@ -112,14 +112,25 @@ function displayCompanies(x) {
 
         additionalCompany.value = company.name
         additionalCompany.innerText = `${company.name} (${company.count})`
-        additionalCompany.onclick = () => { toggleCompanyfilter(company.name) }
+        additionalCompany.onclick = () => { toggleCompanyFilter(company.name) }
         document.getElementById('companiesFilter').appendChild(additionalCompany)
     });
+    //add the type switch
+    var toggle = document.createElement('button')
+    toggle.innerText = check ? 'INCLUDE' : 'EXCLUDE';
+    toggle.onclick = () => { changeCompanyFilterType() }
+    toggle.style.background = 'none'
+    toggle.style.border = 'none'
+    toggle.style.textDecoration = 'underline'
+    toggle.style.fontWeight = 'bold'
+    toggle.style.fontSize = 'small'
+    toggle.style.cursor = 'pointer'
+    document.getElementById('companiesFilter').appendChild(toggle)
 }
 
 
 
-function toggleCompanyfilter(company) {
+function toggleCompanyFilter(company) {
     const index = companyFilter.indexOf(company);
     if (index > -1) {
         companyFilter.splice(index, 1);
@@ -129,18 +140,24 @@ function toggleCompanyfilter(company) {
     applyCompanyFilter(companyFilter)
 }
 
+var check = false
 function applyCompanyFilter(companyNames) {
     // prep for filter
     var newArray = tidyResults("[" + document.getElementById('jsonInput').value + "]");
 
     // apply filter
-    newArray = newArray.filter(study => !companyNames.includes(study.Company));
+    newArray = newArray.filter(study => companyNames.includes(study.Company) == check);
 
     // get json array back to string format that start function expects
     stringVal = JSON.stringify(newArray).slice(1, -1);
 
     // trigger start function
     start(stringVal, document.getElementById('startdate').value, document.getElementById('enddate').value);
+}
+
+function changeCompanyFilterType() {
+    check = !check
+    applyCompanyFilter(companyFilter)
 }
 
 function populateDates() {
