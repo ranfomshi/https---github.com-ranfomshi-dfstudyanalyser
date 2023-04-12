@@ -117,15 +117,20 @@ function displayCompanies(x) {
     });
     //add the type switch
     var toggle = document.createElement('button')
-    toggle.innerText = check ? 'INCLUDE' : 'EXCLUDE';
+    toggle.innerText = check ? 'Include' : 'Exclude';
     toggle.onclick = () => { changeCompanyFilterType() }
+    toggle.id = 'toggle'
     toggle.style.background = 'none'
     toggle.style.border = 'none'
     toggle.style.textDecoration = 'underline'
     toggle.style.fontWeight = 'bold'
     toggle.style.fontSize = 'small'
+    toggle.style.width = '100%'
+    toggle.style.textAlign = 'left'
     toggle.style.cursor = 'pointer'
-    document.getElementById('companiesFilter').appendChild(toggle)
+    // Append toggle as the first child of companiesFilter
+    document.getElementById('companiesFilter').insertBefore(toggle, document.getElementById('companiesFilter').firstChild);
+
 }
 
 

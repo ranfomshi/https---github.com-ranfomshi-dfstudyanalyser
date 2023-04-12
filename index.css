@@ -255,6 +255,7 @@ textarea:focus {
 }
 
 .filterBtn {
+    flex-grow: 1;
     border: none;
     background-color: #2d3ce0;
     color: white;
@@ -263,11 +264,11 @@ textarea:focus {
     margin: 3px 3px 3px 0;
     border-radius: 5px;
     cursor: pointer;
-    -webkit-transition: all 6s linear;
-    -moz-transition: all 6s linear;
-    -ms-transition: all 6s linear;
-    -o-transition: all 6s linear;
-    transition: all 6s linear;
+    -webkit-transition: all 0.6s linear;
+    -moz-transition: all 0.6s linear;
+    -ms-transition: all 0.6s linear;
+    -o-transition: all 0.6s linear;
+    transition: all 0.66s linear;
 }
 
 .filterBtnSecondary {
@@ -276,7 +277,9 @@ textarea:focus {
 
 .companiesFilter {
     border: none;
-    display: inline-flex;
+    display: flex;
+    flex-direction: row;
     flex-wrap: wrap;
     padding: 10px;
+
 }
