@@ -11,6 +11,7 @@ var studyArray = [];
 function start(array, start, end) {
     document.getElementById("startBtn").style.display = "none";
     document.getElementById("jsonInput").style.display = "none";
+    document.getElementById("dates").style.display = "flex";
     document.getElementById("backBtn").style.display = "block";
     document.getElementById("instruction").style.display = "none";
     //clear previous output charts etc
@@ -1312,6 +1313,7 @@ function reset() {
     //clear previous output charts etc
     document.getElementById("companiesFilter").innerHTML = "";
     document.getElementById("output").innerHTML = "";
+    document.getElementById("dates").style.display = "none";
     document.getElementById("summaryData").innerText = "";
     //clear data ready for fresh input
     masterCollation = {

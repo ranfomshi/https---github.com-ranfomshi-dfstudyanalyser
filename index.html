@@ -24,7 +24,19 @@
     </div>
     <div id="content" class="content">
         <div id="companiesFilter" class="companiesFilter"></div>
+        <div id="dates" class="dates">
+            <div><label for="startdate">Start Date:</label>
+                <input
+                    onchange="start(getElementById('jsonInput').value, getElementById('startdate').value, getElementById('enddate').value )"
+                    type="date" id="startdate">
+            </div>
 
+            <div><label for="enddate">End Date:</label>
+                <input
+                    onchange="start(getElementById('jsonInput').value, getElementById('startdate').value, getElementById('enddate').value )"
+                    type="date" id="enddate">
+            </div>
+        </div>
         <div id="instruction" style="height: fit-content; max-height: fit-content; text-align: left;" class="chartCard">
             <div id="codeContainer">
                 <div style="display: flex; align-items: center;"><span
@@ -66,10 +78,7 @@
 
             </div>
             <hr>
-            <div style="display:flex; align-items: center;"> <span
-                    style="color: #FF5723; margin-right: 10px;">&#9314;</span>
-                <h3>You can narrow the dates further if required</h3>
-            </div>
+
 
 
 
@@ -12337,29 +12346,22 @@ true, "gaze_path": false, "digestibility": false}, "settings": {"map": "heat", "
 
 
             <div style="display:flex; align-items: center;"> <span
-                    style="color: #FF5723; margin-right: 10px;">&#9315;</span>
+                    style="color: #FF5723; margin-right: 10px;">&#9314;</span>
                 <h3>View the results</h3><button
                     onclick="start(getElementById('jsonInput').value, getElementById('startdate').value, getElementById('enddate').value ); window.dispatchEvent(new Event('resize'));"
                     class="btn" id="startBtn">GO</button>
+            </div>
+
+            <div style="display:flex; align-items: center;"> <span
+                    style="color: #FF5723; margin-right: 10px;">&#9315;</span>
+                <h3>Apply further filters (optional)</h3>
             </div>
 
 
 
         </div>
         <button onclick="reset()" class="btn" style="display:none;" id="backBtn">BACK</button>
-        <div class="dates">
-            <div><label for="startdate">Start Date:</label>
-                <input
-                    onchange="start(getElementById('jsonInput').value, getElementById('startdate').value, getElementById('enddate').value )"
-                    type="date" id="startdate">
-            </div>
 
-            <div><label for="enddate">End Date:</label>
-                <input
-                    onchange="start(getElementById('jsonInput').value, getElementById('startdate').value, getElementById('enddate').value )"
-                    type="date" id="enddate">
-            </div>
-        </div>
         <div id="summaryData">
 
         </div>
