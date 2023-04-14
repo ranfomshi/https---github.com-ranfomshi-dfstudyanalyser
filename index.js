@@ -13,7 +13,7 @@ function start(array, start, end) {
     document.getElementById("jsonInput").style.display = "none";
     document.getElementById("dates").style.display = "flex";
     document.getElementById("backBtn").style.display = "block";
-    document.getElementById("instruction").style.display = "none";
+    document.getElementById("instruction").style.display = "none"; document.getElementById("instruction2").style.display = "none";
     //clear previous output charts etc
     document.getElementById("output").innerHTML = "";
     document.getElementById("companiesFilter").innerHTML = "";
@@ -143,7 +143,37 @@ function displayCompanies(x) {
 
 }
 
+function queryAPI(limit, months, company) {
+    // Define the endpoint URL
+    const endpointUrl = "http://127.0.0.1:5000/studies";
 
+    // Define any query parameters as an object
+    const queryParams = {
+        limit: limit,
+        months: months,
+        company: company,
+    };
+
+    // Convert the query parameters to a query string
+    const queryString = new URLSearchParams(queryParams).toString();
+
+    // Combine the endpoint URL and query string to create the full URL
+    const fullUrl = `${endpointUrl}?${queryString}`;
+
+    // Send a GET request to the endpoint URL
+    fetch(fullUrl)
+        .then(response => response.text())
+        .then(data => {
+            // Handle the returned data
+            console.log(data);
+            document.getElementById('jsonInput').value = data
+        })
+        .catch(error => {
+            // Handle any errors
+            console.error(error);
+        });
+
+}
 
 function toggleCompanyFilter(company) {
     const index = companyFilter.indexOf(company);
@@ -1327,7 +1357,7 @@ function reset() {
     document.getElementById("startBtn").style.display = "block";
     document.getElementById("jsonInput").style.display = "block";
     document.getElementById("backBtn").style.display = "none";
-    document.getElementById("instruction").style.display = "block";
+    document.getElementById("instruction").style.display = "block"; document.getElementById("instruction2").style.display = "block";
 }
 
 window.addEventListener('scroll', function () {
